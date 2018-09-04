@@ -57,7 +57,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var delegates : [GameSceneDelegate] = [GameSceneDelegate]()
     
     override func didMove(to view: SKView) {
-        UserDefaults.standard.removeObject(forKey: "brains")
+        //UserDefaults.standard.removeObject(forKey: "brains")
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
         self.physicsWorld.contactDelegate = self
         self.addTopMenu()

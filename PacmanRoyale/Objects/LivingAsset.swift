@@ -41,7 +41,13 @@ class LivingAsset : Asset{
     }
 
     func think(){
-        return
+        guard self.brain.decisions.count > 0 else {
+            return
+        }
+        
+        if isPerformingAction() == true{
+            return
+        }
         
         self.removeAction(forKey: "thinking")
         guard self.nextCell == nil else{
@@ -50,9 +56,11 @@ class LivingAsset : Asset{
             self.nextThinking(interval: self.thinkSpeed())
             return
         }
+        
         guard self.isMine else {
             return
         }
+        
         if let decision = self.brain.getDecision(testStates: self.state(radius: 1, includingSelf: false)){
             performDecision(preferredState: decision)
         }

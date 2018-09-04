@@ -195,7 +195,7 @@ class Cell : SKSpriteNode{
         }
         return 0
     }
-    
+   
     private func assetState(requestingAsset : Asset) -> UInt{
         var state : UInt = 0
         if self.asset != nil{
@@ -223,7 +223,6 @@ class Cell : SKSpriteNode{
             else{// are equal
                 state =  state | StateTypes.hasEqualAsset.mask()
             }
-            
         }
         return state
     }
@@ -272,8 +271,36 @@ class Cell : SKSpriteNode{
         return 0
     }
     
-    func state(requestingAsset : Asset) -> UInt{
-        return self.objectState() |
+    func orientation(requestingAsset : Asset) -> UInt{
+        let direction = getRadAngle(requestingAsset.cell.position, pointB: self.position)
+        let angleDirection =  negativeAngleToPositive(angle: radiansToAngle(CGFloat(direction)))
+        let roundTo45 = roundTo(val: angleDirection, factor: 45)
+        switch roundTo45 {
+        case 0:
+            return StateTypes.is0Degrees.mask()
+        case 45:
+            return StateTypes.is45Degrees.mask()
+        case 90:
+            return StateTypes.is90Degrees.mask()
+        case 135:
+            return StateTypes.is135Degrees.mask()
+        case 180:
+            return StateTypes.is180Degrees.mask()
+        case 225:
+            return StateTypes.is225Degrees.mask()
+        case 270:
+            return StateTypes.is270Degrees.mask()
+        case 315:
+            return StateTypes.is315Degrees.mask()
+        default:
+            return 0
+        }
+    }
+    
+    
+    func state(requestingAsset : Asset, radius : Int) -> UInt{
+        return
+            self.orientation(requestingAsset:requestingAsset) |
             self.assetState(requestingAsset: requestingAsset) |
             self.proximityToHomeState(requestingAsset: requestingAsset)  |
             self.proximityToEnemyHomeState (requestingAsset: requestingAsset)

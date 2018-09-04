@@ -55,9 +55,10 @@ extension GameScene : GameScene_UserInterface{
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if self.selectedAsset != nil && self.selectedCells.count == 1{
+            let radius : Int = 1
             _ = self.selectedAsset!.cell.relativity(cell: self.selectedCells.first!)
             self.selectedAsset!.nextCell = self.selectedCells.first!
-            self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].state(requestingAsset: self.selectedAsset!))
+            self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].state(requestingAsset: self.selectedAsset!, radius: 1))
             self.selectedAsset!.think()
         }
         

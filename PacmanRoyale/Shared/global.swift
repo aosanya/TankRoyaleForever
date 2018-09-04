@@ -40,6 +40,22 @@ func radiansToAngle(_ radians : CGFloat) -> CGFloat{
     return (radians * CGFloat(180)) / CGFloat(Double.pi)
 }
 
+func roundTo(val : CGFloat, factor : Int) -> CGFloat{
+    var result = Double(val / CGFloat(factor))
+    result = round(result) * Double(factor)
+    return CGFloat(result)
+}
+
+func negativeAngleToPositive(angle : CGFloat) -> CGFloat{
+    var result : CGFloat = angle
+    
+    while result < 0 {
+        result += 360
+    }
+    
+    return result
+}
+
 func getDistance(_ pointA : CGPoint, pointB : CGPoint) -> CGFloat{
     let deltaY = pointA.y - pointB.y
     let deltaX = pointA.x - pointB.x
@@ -51,7 +67,6 @@ func getRadAngle(_ pointA : CGPoint, pointB : CGPoint) -> Float{
     let deltaX = Float(pointA.x - pointB.x)
     return atan2f(deltaY,deltaX)
 }
-
 
 func convertRange(_ fromMin : Float, fromMax : Float, toMin : Float, toMax : Float, convertVal : Float) -> Float{
     var convertVal = convertVal

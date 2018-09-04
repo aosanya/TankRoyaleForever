@@ -13,6 +13,10 @@ protocol UserInfo_Brain {
 
 
 extension UserInfo : UserInfo_Brain  {
+    static func resetBrains(){
+        UserDefaults.standard.removeObject(forKey: "brains")
+    }
+    
     static func addBrain(brain : Brain){
         var brains = self.brains()
         brains.append(brain)

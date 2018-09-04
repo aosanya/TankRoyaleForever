@@ -217,7 +217,8 @@ class Cells : CellDelegate, GameSceneDelegate{
         guard cell.asset != nil else {
             return [Cell]()
         }
-        return self.radialCells(cell: cell, radius: 1, includingSelf: false).filter({m in m.state(requestingAsset: cell.asset!) == state})
+        let radius : Int = 1
+        return self.radialCells(cell: cell, radius: radius, includingSelf: false).filter({m in m.state(requestingAsset: cell.asset!, radius: radius) == state})
     }
     
     func relativeCell(cell : Cell, radAngle : CGFloat) -> Cell?{
@@ -245,7 +246,7 @@ class Cells : CellDelegate, GameSceneDelegate{
     func radialCellsState(asset : Asset, cell : Cell, radius : Int, includingSelf : Bool) -> States{
         
         let rCells = self.radialCells(cell: cell, radius: radius, includingSelf: false)
-        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0, $1.state(requestingAsset: asset))}
+        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0, $1.state(requestingAsset: asset, radius: radius))}
         
         return States(set: Set(states.map({m in State(index: m.0, value: m.1)})))
     }

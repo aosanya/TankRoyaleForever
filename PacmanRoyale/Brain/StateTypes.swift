@@ -21,13 +21,21 @@ enum StateTypes : UInt{
     case hasSideHome = 10
     case hasTank = 11
 
-    case hasMyAsset = 19
-    case hasEnemyAsset = 20
-    case hasStrongerAsset = 21
-    case hasWeakerAsset = 22
-    case hasEqualAsset = 23
-    case isNearerToEnemyHome = 24
-    case isNearerToHome = 25
+    case hasMyAsset = 15
+    case hasEnemyAsset = 16
+    case hasStrongerAsset = 17
+    case hasWeakerAsset = 18
+    case hasEqualAsset = 19
+    case isNearerToEnemyHome = 20
+    case isNearerToHome = 21
+    case is0Degrees = 22
+    case is45Degrees = 23
+    case is90Degrees = 24
+    case is135Degrees = 25
+    case is180Degrees = 26
+    case is225Degrees = 27
+    case is270Degrees = 28
+    case is315Degrees = 29
     
     func mask() -> UInt{
         return 1 << self.rawValue
