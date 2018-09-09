@@ -13,11 +13,17 @@ class UserInfo{
     static let scoreKey = "score"
     
     static func getLevel() -> Double{
-        return Double(self.getScore() / 100) + 1
+        let level = self.getScore() + 1
+        
+        if level > 10{
+            return 10
+        }
+        
+        return level
     }
-    static func getScore() -> Int{
+    static func getScore() -> Double{
         if let score = UserDefaults.standard.value(forKey: scoreKey){
-            return score as! Int
+            return score as! Double
         }
         else{
             UserDefaults.standard.set(0, forKey: scoreKey)
@@ -25,7 +31,7 @@ class UserInfo{
         }
     }
     
-    static func changeScore(change : Int) {
+    static func changeScore(change : Double) {
         var score = UserInfo.getScore()
         score += change
         if score < 0{

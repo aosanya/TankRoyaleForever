@@ -10,27 +10,34 @@ import SpriteKit
 
 enum GameObjectType : UInt{
     case tank1 = 1
+    case shot = 2
     case cell = 9
     
     func categoryBitMask() -> UInt32{
         return 1 << self.rawValue
     }
     
+
+    
     func contactTestBitMask() -> UInt32{
         switch self {
         case .tank1:
+            return GameObjectType.tank1.categoryBitMask()
+        case .shot:
             return GameObjectType.tank1.categoryBitMask()
         case .cell:
             return GameObjectType.tank1.categoryBitMask()
         }
     }
     
-    func labelPosition() -> CGPoint{
+    func labelPosition() -> CGPoint?{
         switch self {
         case .tank1:
             return CGPoint(x: 0, y: -15)
         case .cell:
             return CGPoint(x: 0, y: -8)
+        case .shot:
+            return nil
         }
     }
    
@@ -39,15 +46,20 @@ enum GameObjectType : UInt{
         switch self {
         case .tank1:
             return #imageLiteral(resourceName: "Tank1")
+        case .shot:
+            return #imageLiteral(resourceName: "redBullet")
         case .cell:
             return #imageLiteral(resourceName: "WhiteCellDotted")
         }
     }
     
-    func objectSize() -> CGSize?{
+    func size() -> CGSize?{
         switch self {
         case .tank1:
             return nil
+        case .shot:
+            //return CGSize(width: 30, height: 52)
+            return CGSize(width: 20, height: 30)
         case .cell:
             return nil
         }
@@ -59,6 +71,25 @@ enum GameObjectType : UInt{
             return 0
         }
     }
+    
+    func statusBarSize() -> CGSize?{
+        switch self {
+        case .tank1:
+            return CGSize(width: 50, height: 10)
+        default:
+            return nil
+        }
+    }
+    
+    func statusBarPosition() -> CGPoint?{
+        switch self {
+        case .tank1:
+            return CGPoint(x: 0, y: -0.7)
+        default:
+            return CGPoint(x: 0, y: -0.7)
+        }
+    }
+    
 }
 
 protocol GameObjectDelegate {
@@ -138,7 +169,7 @@ class GameObject : SKSpriteNode{
         self.label.fontName = "ChalkboardSE-Regular"
         self.label.fontColor = UIColor.white
         self.label.fontSize = 18
-        self.label.position = self.type.labelPosition()
+        self.label.position = self.type.labelPosition()!
         self.addChild(self.label!)
         self.label.zPosition = self.zPosition  +  2
         

@@ -14,13 +14,13 @@ protocol GameScene_GameState {
 
 extension  GameScene : GameScene_GameState{
     func loadGameOver(){
+        
         self.gameOverControl = GameOverControl(pointsChange: self.greenScore.score - self.redScore.score)
         self.gameOverControl!.delegate = self
         self.gameOverControl!.position = CGPoint(x: 0, y: self.topMenu.frame.minY - 100)
         self.addChild(self.gameOverControl!)
         self.repositionCellNode()
         
-        self.addChild(self.gameOverControl!)
         for each in self.delegates{
             each.gameOver(Iwin : self.greenScore.score > self.redScore.score)
         }
@@ -45,13 +45,13 @@ extension  GameScene : GameScene_GameState{
         }
     }
     
-    func showGameOver(){
-        self.gameOverControl = GameOverControl(pointsChange: 20)
-        self.gameOverControl!.delegate = self
-        self.gameOverControl!.position = CGPoint(x: 0, y: self.topMenu.frame.minY - 100)
-        self.addChild(self.gameOverControl!)
-        self.repositionCellNode()
-    }
+//    func showGameOver(){
+//        self.gameOverControl = GameOverControl(pointsChange: 20)
+//        self.gameOverControl!.delegate = self
+//        self.gameOverControl!.position = CGPoint(x: 0, y: self.topMenu.frame.minY - 100)
+//        self.addChild(self.gameOverControl!)
+//        self.repositionCellNode()
+//    }
     
     func loadGameStart(){
 //        for each in self.delegates{

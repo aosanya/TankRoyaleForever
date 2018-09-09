@@ -10,25 +10,40 @@ import SpriteKit
 
 protocol GameOverDelegate {
     func showingPoints()
+    func restartGame()
 }
 
 class GameOverControl: SKNode {
     var lblGameOver : SKLabelNode!
     var lblPoints : SKLabelNode!
-    var lblChange : SKLabelNode!
-    var lblLevel : SKLabelNode!
+    var playButton : Button!
     var points : SKNode = SKNode()
     var delegate : GameOverDelegate?
-    var pointsChange : Int
+    var scoreChange : Double
     var Iwin : Bool
     
-    init(pointsChange : Int) {
-        self.pointsChange = pointsChange
+    init(pointsChange : Double) {
+        self.scoreChange = pointsChange * 0.1
         self.Iwin = pointsChange > 0
         super.init()
-        UserInfo.changeScore(change: pointsChange)
+        self.normalizeScoreChange()
+        UserInfo.changeScore(change: self.scoreChange)
         self.addLabels()
+        self.schedulePlayButton()
     }
+    
+    func normalizeScoreChange(){
+        let currentScore = UserInfo.getScore()
+        
+        if self.scoreChange + currentScore > 10{
+            self.scoreChange = 10 - currentScore
+        }
+        
+        if self.scoreChange + currentScore < 0{
+            self.scoreChange = currentScore * -1
+        }
+    }
+    
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -42,7 +57,6 @@ class GameOverControl: SKNode {
         self.lblGameOver.zPosition = self.zPosition + 2
         self.lblGameOver.setScale(0)
         self.lblGameOver.popOut(duration: 2, callBack: showWinner)
-        
         self.setLabelTheme(lbl: lblGameOver)
     }
     
@@ -50,16 +64,16 @@ class GameOverControl: SKNode {
     private func showWinner(){
         if self.Iwin == true{
             self.lblGameOver.text = "You win"
-            self.lblGameOver.popOut(duration: 1, callBack: addPointsLabel)
         }
         else{
-            self.lblGameOver.text = "You Loose"
+            self.lblGameOver.text = "You Lose"
         }
+        self.lblGameOver.popOut(duration: 1, callBack: addPointsLabel)
         
     }
     
     private func addPointsLabel(){
-        self.lblPoints = SKLabelNode(text: "\(UserInfo.getScore())")
+        self.lblPoints = SKLabelNode(text: "Next Level : \(UserInfo.getLevel())")
         self.lblPoints.fontName = "ChalkboardSE-Regular"
         self.lblPoints.fontColor = UIColor(red: 46/255, green: 46/255, blue: 46/255, alpha: 1)
         self.lblPoints.fontSize = 30
@@ -67,43 +81,30 @@ class GameOverControl: SKNode {
         self.points.addChild(self.lblPoints!)
         self.lblPoints.zPosition = self.zPosition + 2
         
-        var pointsChangeLabel = ""
-        if self.pointsChange > 0{
-            pointsChangeLabel = "+\(pointsChange)"
-        }
-        else{
-            pointsChangeLabel = "-\(pointsChange)"
-        }
-        
-        self.lblChange = SKLabelNode(text: pointsChangeLabel)
-        self.lblChange.fontName = "ChalkboardSE-Regular"
-        self.lblChange.fontSize = 20
-        self.lblChange.position.y =  5
-        self.lblChange.position.x = lblPoints.calculateAccumulatedFrame().maxX + lblChange.calculateAccumulatedFrame().width / 2 + 10
-        points.addChild(self.lblChange!)
-        self.lblChange.zPosition = self.zPosition + 2
-        self.setLabelTheme(lbl: lblChange)
-        
         points.position.y = lblGameOver.frame.minY - lblPoints.frame.height - 30
-        points.position.x = points.calculateAccumulatedFrame().width * -0.27
+        points.position.x = 0 //points.calculateAccumulatedFrame().width //* -0.5
         self.addChild(points)
         
         points.setScale(0)
-        points.popOut(duration: 1, callBack: addLevelLabel)
+        points.popOut(duration: 1, callBack: nil)
         
         self.delegate!.showingPoints()
+        
+    }
+        
+    private func schedulePlayButton(){
+        self.run(scheduleAction(duration: 7, callBack: addPlayButton))
     }
     
-    private func addLevelLabel(){
-        self.lblLevel = SKLabelNode(text: "\(UserInfo.getLevel())")
-        self.lblLevel.fontName = "ChalkboardSE-Regular"
-        self.lblLevel.fontColor = UIColor(red: 46/255, green: 46/255, blue: 46/255, alpha: 1)
-        self.lblLevel.fontSize = 28
-        self.lblLevel.position.y = self.points.calculateAccumulatedFrame().minY - lblLevel.frame.height - 30
-        self.addChild(self.lblLevel!)
-        self.lblLevel.zPosition = self.zPosition + 2
-        self.lblLevel.setScale(0)
-        self.lblLevel.popOut(duration: 1, callBack: nil)
+    private func addPlayButton(){
+        self.playButton = Button(text: "Play Again", action: restartGame)
+        self.playButton.zPosition = self.zPosition + 2
+        self.addChild(self.playButton)
+        self.playButton.position.y = points.calculateAccumulatedFrame().minY - self.playButton.calculateAccumulatedFrame().height - 30
+    }
+    
+    func restartGame(){
+        self.delegate!.restartGame()
     }
     
     private func setLabelTheme(lbl : SKLabelNode) {

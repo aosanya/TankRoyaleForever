@@ -14,11 +14,12 @@ var cells : Cells!
 protocol GameSceneDelegate {
     func gameOver(Iwin : Bool)
     func gameStart()
+    func gameRestart()
 }
 
-class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelegate, GameOverDelegate {
+class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelegate, GameOverDelegate, LivingAssetDelegate {
 
-    
+
     var assets : Assets!
     var selectedAsset : LivingAsset?
     var selectedCells : [Cell] = [Cell]()
@@ -40,7 +41,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     
     var gameOver : Bool = false{
         didSet{
-            if gameOver == true{
+            
+            if gameOver == true && oldValue == false{
                 self.loadGameOver()
             }
         }
@@ -57,7 +59,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var delegates : [GameSceneDelegate] = [GameSceneDelegate]()
     
     override func didMove(to view: SKView) {
-        //UserDefaults.standard.removeObject(forKey: "brains")
+        UserDefaults.standard.removeObject(forKey: "brains")
+        UserDefaults.standard.removeObject(forKey: "score")
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
         self.physicsWorld.contactDelegate = self
         self.addTopMenu()
@@ -67,8 +70,36 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.loadAssets()
         //self.showGameOver()
         self.startResourceGeneration(interval: 2)
+        
+        
     }
 
+    func deInitialize(){
+        cells.deInitialize()
+        cells = nil
+        
+        self.delegates.removeAll()
+        self.assets.deInitialize()
+        self.assets = nil
+        self.selectedAsset = nil
+        self.cellsNode = nil
+        self.topMenu = nil
+        self.gameOverControl = nil
+        self.redScore = nil
+        self.greenScore = nil
+        self.children
+            .forEach {
+                $0.removeAllActions()
+                $0.removeAllChildren()
+                $0.removeFromParent()
+        }
+        
+        self.removeAllActions()
+        self.removeAllChildren()
+        self.removeFromParent()
+        
+    }
+    
     func getAction(fromCell : Cell, toCell : Cell){
         
     }
@@ -78,7 +109,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.lblLevel.fontName = "ChalkboardSE-Regular"
         self.lblLevel.fontColor = UIColor(red: 46/255, green: 46/255, blue: 46/255, alpha: 1)
         self.lblLevel.position = CGPoint(x: 0, y: self.topMenu.calculateAccumulatedFrame().minY - 50)
-        self.lblLevel.fontSize = 25
+        self.lblLevel.fontSize = 30
         self.lblLevel.zPosition = self.zPosition + 2
         self.addChild(self.lblLevel!)
     }
@@ -124,15 +155,15 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func strengthChange(thisAsset: Asset) {
-       self.updateScores(thisAsset: thisAsset)
+       self.updateScores(isMine: thisAsset.isMine)
     }
     
-    func updateScores(thisAsset: Asset){
-        if thisAsset.isMine && thisAsset is LivingAsset {
+    func updateScores(isMine : Bool){
+        if isMine {
             greenScore.score = assets.teamStrength(isMine: true)
         }
         
-        if !thisAsset.isMine && thisAsset is LivingAsset {
+        if !isMine{
             redScore.score = assets.teamStrength(isMine: false)
         }
         
@@ -225,15 +256,15 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func createAsset(cell: Cell, isMine: Bool) {
-        if let upgradeCandidate = cell.contactingAssets.filter({m in m.isMine == isMine}).first{
-            if upgradeCandidate.isMine == isMine {
-                upgradeCandidate.strength += newAssetStrength
-            }
-            else{
-                upgradeCandidate.strength -= newAssetStrength
-            }
-            return
-        }
+ //       if let upgradeCandidate = cell.contactingAssets.filter({m in m.isMine == isMine}).first{
+//            if upgradeCandidate.isMine == isMine {
+//                upgradeCandidate.strength += newAssetStrength
+//            }
+//            else{
+//                upgradeCandidate.strength -= newAssetStrength
+//            }
+//            return
+//        }
         self.assets.createAssets(cell: cell.id, isMine: isMine, strength: newAssetStrength)
     }
     
@@ -262,9 +293,13 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func assetCreated(thisAsset: Asset) {
+        if thisAsset is LivingAsset{
+            let thisLivingAsset : LivingAsset = thisAsset as! LivingAsset
+            thisLivingAsset.livingAssetDelegate = self
+        }
         
         self.cellsNode.addChild(thisAsset)
-        self.updateScores(thisAsset: thisAsset)
+        self.updateScores(isMine: thisAsset.isMine)
         
         guard gameStarted == false else {
             return
@@ -295,9 +330,42 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
 //        UserInfo.brain(brain: brain)
 //    }
     
+    func addShot(livingAsset : LivingAsset){
+        let pos = extrapolatePointUsingAngle(livingAsset.position, direction: livingAsset.forwardDirection, byVal: livingAsset.assetType.size().height * 0.3)
+        
+        let moveVector = extrapolatePointUsingAngle(CGPoint.zero, direction: livingAsset.forwardDirection, byVal: cells.cellHeight)
+        let moveAction = SKAction.moveBy(x: moveVector.x, y: moveVector.y, duration: 0.5)
+        
+        let thisShot = Shot(pos: pos, direction: livingAsset.shootDirection, launcher: livingAsset.id, payload: livingAsset.assetType.shotPayload())
+        self.cellsNode.addChild(thisShot)
+
+        let removeAction = SKAction.run({() in thisShot.removeFromParent()})
+        let sequence = SKAction.sequence([moveAction, removeAction])
+        thisShot.run(sequence)
+        thisShot.zPosition = livingAsset.zPosition + 1
+        
+        
+    }
+    
+    func dead(livingAsset: LivingAsset) {
+        let isMine = livingAsset.isMine
+        self.assets.remove(asset: livingAsset)
+        self.updateScores(isMine: isMine)
+    }
+    
+    func stateChanged(livingAsset: LivingAsset) {
+        self.updateScores(isMine: livingAsset.isMine)
+    }
     
     
     override func update(_ currentTime: TimeInterval) {
 
     }
+    
+    func restartGame() {
+        for each in self.delegates{
+            each.gameRestart()
+        }
+    }
+    
 }

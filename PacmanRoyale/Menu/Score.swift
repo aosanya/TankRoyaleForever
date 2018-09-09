@@ -13,9 +13,9 @@ class Score : SKNode{
     private var icon : SKSpriteNode?
     private var scoreValue : SKLabelNode?
     private var isMine : Bool
-    var score : Int = 0{
+    var score : Double = 0{
         didSet{
-            self.scoreValue!.text = "\(score)"
+            self.scoreValue!.text = "\(round(100 * score)/100)"
         }
     }
     

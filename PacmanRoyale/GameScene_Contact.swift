@@ -15,8 +15,24 @@ protocol GameScene_Contact {
 extension GameScene : GameScene_Contact{
     @objc(didBeginContact:) func didBegin(_ contact: SKPhysicsContact) {
         switch contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask {
-        case GameObjectType.tank1.categoryBitMask() | GameObjectType.tank1.categoryBitMask():
-            self.mergeAssets(asset1: contact.bodyA.node as! Asset, asset2: contact.bodyB.node as! Asset)
+        case GameObjectType.tank1.categoryBitMask() | GameObjectType.shot.categoryBitMask():
+            var thisShot : Shot?
+            var thisTank : LivingAsset?
+            
+            if contact.bodyA.node is Shot{
+                thisShot = contact.bodyA.node as? Shot
+                thisTank = contact.bodyB.node as? LivingAsset
+            }
+            else if contact.bodyB.node is Shot{
+                thisShot = contact.bodyB.node as? Shot
+                thisTank = contact.bodyA.node as? LivingAsset
+            }
+            if thisShot!.launcher != thisTank!.id{
+                thisTank?.gotShot(shotPower: thisShot!.payload)
+                self.updateScores(isMine: thisTank!.isMine)
+                thisShot!.remove()
+            }
+            
 //        case GameObjectType.tank1.categoryBitMask() | GameObjectType.mainHome.categoryBitMask(),
 //             GameObjectType.tank1.categoryBitMask() | GameObjectType.sideHome.categoryBitMask():
 //            self.mergeAssets(asset1: contact.bodyA.node as! Asset, asset2: contact.bodyB.node as! Asset)
@@ -54,38 +70,6 @@ extension GameScene : GameScene_Contact{
             return
         }
         
-    }
-    
-    func mergeAssets(asset1 : Asset, asset2 : Asset){
-        guard asset1.isRemoved == false else {
-            print("Is already removed")
-            return
-        }
-        guard asset2.isRemoved == false else {
-            print("Is already removed")
-            return
-        }
-        
-        if asset1.strength > asset2.strength{
-            asset1.merge(asset: asset2)
-            assets.remove(asset: asset2)
-        }
-        else if asset1.strength < asset2.strength{
-            asset2.merge(asset: asset1)
-            assets.remove(asset: asset1)
-        }
-        else if asset1.isMine == asset2.isMine{
-            asset1.merge(asset: asset2)
-            assets.remove(asset: asset2)
-        }
-        else {
-            assets.remove(asset: asset1)
-            assets.remove(asset: asset2)
-        }
-        
-        self.updateScores(thisAsset: asset1)
-        self.updateScores(thisAsset: asset2)
-        return
     }
     
     func collect(asset : Asset, cellObject : CellObject){

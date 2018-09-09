@@ -10,24 +10,25 @@ import UIKit
 import SpriteKit
 import GameplayKit
 
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, GameSceneDelegate {
 
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Load 'GameScene.sks' as a GKScene. This provides gameplay related content
-        // including entities and graphs.
+        self.loadScene()
+    }
+    
+    func loadScene(){
         if let scene = GKScene(fileNamed: "GameScene") {
             // Get the SKScene from the loaded GKScene
             if let sceneNode = scene.rootNode as! GameScene? {
                 // Set the scale mode to scale to fit the window
-                sceneNode.scaleMode = .aspectFill                
+                sceneNode.delegates.append(self)
+                sceneNode.scaleMode = .aspectFill
                 // Present the scene
                 if let view = self.view as! SKView? {
                     view.presentScene(sceneNode)
-                    
                     view.ignoresSiblingOrder = true
-                    
                     view.showsFPS = true
                     view.showsNodeCount = true
                     //view.showsPhysics = true
@@ -35,7 +36,29 @@ class GameViewController: UIViewController {
             }
         }
     }
-
+    
+    
+    func gameOver(Iwin: Bool) {
+        
+    }
+    
+    func gameStart() {
+        
+    }
+    
+    func gameRestart() {
+        removePreviousScene()
+        self.loadScene()
+    }
+    
+    func removePreviousScene(){
+        let skView = self.view as? SKView
+        if let scene = skView?.scene as? GameScene{
+            scene.deInitialize()
+            skView?.presentScene(nil)
+        }
+    }
+    
     override var shouldAutorotate: Bool {
         return true
     }

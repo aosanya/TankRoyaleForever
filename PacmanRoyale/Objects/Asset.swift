@@ -25,10 +25,24 @@ enum AssetType : Int{
         }
     }
     
-    func speed() -> Double?{
+    func speed() -> Double{
         switch self {
         case .tank1:
-            return 50
+            return 1
+        }
+    }    
+    
+    func durability() -> Double{
+        switch self {
+        case .tank1:
+            return 1
+        }
+    }
+    
+    func shotPayload() -> Double{
+        switch self {
+        case .tank1:
+            return 1
         }
     }
     
@@ -48,15 +62,14 @@ protocol AssetDelegate {
 class Asset : GameObject{
     var assetType : AssetType
     var delegate : AssetDelegate?
-    var nextCell : Cell? = nil
+    //used to override thinking using manual actions
+    
     var isMine : Bool
     
    override var cell : Cell{
         didSet{
-            if self.cell.id != oldValue.id{
-                self.cell.asset = self
-                oldValue.asset = nil
-            }
+            self.cell.asset = self
+            oldValue.asset = nil
         }
     }
     
@@ -77,11 +90,11 @@ class Asset : GameObject{
     private func colorTeam() {
         if self.isMine == true{
             self.color = UIColor.green
-            self.colorBlendFactor = 0.5
+            self.colorBlendFactor = 0.3
         }
         else{
             self.color = UIColor.red
-            self.colorBlendFactor = 0.5
+            self.colorBlendFactor = 0.3
         }
         
         if self.isMine{

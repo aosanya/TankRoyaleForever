@@ -18,6 +18,8 @@ protocol AssetsDelegate{
 }
 
 class Assets : GameObjectDelegate, GameSceneDelegate{
+   
+    
 
     
     var living : [LivingAsset]! = [LivingAsset]()
@@ -36,6 +38,18 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
         //self.createEnemyHomes()
         //self.createMyAssets()
         //self.createEnemyAssets()
+    }
+    
+    func deInitialize(){
+        self.living.removeAll()
+        self.living = nil
+        
+        self.nonliving.removeAll()
+        self.nonliving = nil
+        
+        self.delegates.removeAll()
+        
+    
     }
     
     private func initializeBrains(){
@@ -109,7 +123,8 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
         }
         else if asset is LivingAsset{
             self.living = self.living.filter({m in m.id != asset.id})
-            asset.removeFromParent()
+            let livingAsset = asset as! LivingAsset
+            livingAsset.deInit()
         }
     }
     
@@ -120,9 +135,9 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
         }
     }
     
-    func teamStrength(isMine : Bool) -> Int{
+    func teamStrength(isMine : Bool) -> Double{
         let assets = self.living.filter({m in m.isMine == isMine})
-        return assets.map({m in m.strength}).reduce(0, +)
+        return assets.map({m in m.remainingStrength}).reduce(0, +)
     }
     
     func strengthChanged(object : GameObject) {
@@ -139,6 +154,10 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     }
     
     func gameStart() {
+        
+    }
+    
+    func gameRestart() {
         
     }
 }

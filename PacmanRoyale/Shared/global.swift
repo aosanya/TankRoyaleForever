@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SpriteKit
 
 func randint(_ lowerLimit : Int, upperLimit : Int) -> Int{
     var negative = 0
@@ -40,6 +41,19 @@ func radiansToAngle(_ radians : CGFloat) -> CGFloat{
     return (radians * CGFloat(180)) / CGFloat(Double.pi)
 }
 
+func getRadAngle(_ pointA : CGPoint, pointB : CGPoint) -> Float{
+    let deltaY = Float(pointA.y - pointB.y)
+    let deltaX = Float(pointA.x - pointB.x)
+    return atan2f(deltaY,deltaX)
+}
+
+func scheduleAction(duration : Double, callBack : @escaping(()  -> Void)) -> SKAction{
+    let action1 = SKAction.wait(forDuration: duration)
+    let callBackAction = SKAction.run({() in callBack()})
+    return SKAction.sequence([action1, callBackAction])
+
+}
+
 func roundTo(val : CGFloat, factor : Int) -> CGFloat{
     var result = Double(val / CGFloat(factor))
     result = round(result) * Double(factor)
@@ -62,10 +76,10 @@ func getDistance(_ pointA : CGPoint, pointB : CGPoint) -> CGFloat{
     return sqrt(pow(deltaX, 2) + pow(deltaY, 2))
 }
 
-func getRadAngle(_ pointA : CGPoint, pointB : CGPoint) -> Float{
-    let deltaY = Float(pointA.y - pointB.y)
-    let deltaX = Float(pointA.x - pointB.x)
-    return atan2f(deltaY,deltaX)
+func extrapolatePointUsingAngle(_ fromPos : CGPoint, direction : CGFloat, byVal : CGFloat) -> CGPoint{
+    let dX = CGFloat(cos(direction)) * byVal
+    let dY = CGFloat(sin(direction)) * byVal
+    return CGPoint(x: fromPos.x - dX, y: fromPos.y - dY)
 }
 
 func convertRange(_ fromMin : Float, fromMax : Float, toMin : Float, toMax : Float, convertVal : Float) -> Float{

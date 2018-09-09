@@ -62,14 +62,20 @@ class Cell : SKSpriteNode{
     var delegate : CellDelegate?
     var object : CellObject?{
         didSet{
-            delegate!.objectChanged(cell: self)
+            if object != oldValue{
+                delegate!.objectChanged(cell: self)
+            }
         }
     }
     var stars : StatusIndicator?
     
     var asset : Asset?{
         didSet{
-            delegate!.assetChanged(cell: self)
+            if asset != oldValue{
+                if delegate != nil{
+                    delegate!.assetChanged(cell: self)
+                }
+            }
         }
     }
     
@@ -96,20 +102,26 @@ class Cell : SKSpriteNode{
         //self.color = CellState.empty.color()
         //self.colorBlendFactor = 1
         self.addLabel()
-        //self.text(self.id)
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
         self.physicsBody?.categoryBitMask = GameObjectType.cell.categoryBitMask()
         self.physicsBody?.contactTestBitMask =  GameObjectType.cell.contactTestBitMask()
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.isDynamic = false
         self.physicsBody?.allowsRotation = false
-        
+        //self.text("\(self.id)")
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
    
+    func deInitialize(){
+        self.delegate = nil
+        self.label.removeAllChildren()
+        self.asset = nil
+        self.object = nil
+    }
+    
     func addContactingAsset(asset : Asset){
         self.contactingAssets.insert(asset)
     }
@@ -159,7 +171,7 @@ class Cell : SKSpriteNode{
     }
     
     func addObject(type : GameObjectType) {
-        self.object = CellObject(cell : self, objectType: type, size: CGSize(width: self.size.width * type.objectSize()!.width, height: self.size.height * type.objectSize()!.height))
+        self.object = CellObject(cell : self, objectType: type, size: CGSize(width: self.size.width * type.size()!.width, height: self.size.height * type.size()!.height))
         self.addChild(self.object!)
         self.object!.zPosition = self.zPosition + 2
         
@@ -201,8 +213,10 @@ class Cell : SKSpriteNode{
         if self.asset != nil{
             switch self.asset!.type{
             case .tank1:
-                state =  state | StateTypes.hasTank.mask()          
+                state =  state | StateTypes.hasTank.mask()
+            case .shot : ()
             case .cell : ()
+                
             }
             
             //Team
@@ -272,9 +286,16 @@ class Cell : SKSpriteNode{
     }
     
     func orientation(requestingAsset : Asset) -> UInt{
+        
         let direction = getRadAngle(requestingAsset.cell.position, pointB: self.position)
-        let angleDirection =  negativeAngleToPositive(angle: radiansToAngle(CGFloat(direction)))
-        let roundTo45 = roundTo(val: angleDirection, factor: 45)
+        var angleDirection = radiansToAngle(CGFloat(direction))
+        angleDirection = angleDirection + radiansToAngle(requestingAsset.zRotation)
+        let rad = angleToRadians(angle: angleDirection)
+        var angle = radiansToAngle(rad)
+        angle = negativeAngleToPositive(angle: angle)
+        
+        let roundTo45 = roundTo(val: angle, factor: 45)
+        
         switch roundTo45 {
         case 0:
             return StateTypes.is0Degrees.mask()
@@ -314,7 +335,8 @@ class Cell : SKSpriteNode{
     func neighboringAssetChanged(cell : Cell){
         if self.asset != nil{
             if self.asset! is LivingAsset{
-
+                let livingAsset = self.asset as! LivingAsset
+                livingAsset.think()
             }
         }
     }
@@ -322,7 +344,8 @@ class Cell : SKSpriteNode{
     func neighboringObjectChanged(cell : Cell){
         if self.asset != nil{
             if self.asset! is LivingAsset{
-
+                let livingAsset = self.asset as! LivingAsset
+                livingAsset.think()
             }
         }
     }

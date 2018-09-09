@@ -18,11 +18,7 @@ protocol CellsDelegate{
 
 
 class Cells : CellDelegate, GameSceneDelegate{
-
     
-
-    
-
 
     var set : [Cell]! = [Cell]()
     var area : CGRect
@@ -34,8 +30,6 @@ class Cells : CellDelegate, GameSceneDelegate{
     let maxWidth : CGFloat = 150
     let maxHeight : CGFloat = 150
     var abundance : Resources = Resources()
-    
-
     
     init(area : CGRect, rows : Int, cols : Int, delegate : CellsDelegate?){
         self.area = area
@@ -59,6 +53,13 @@ class Cells : CellDelegate, GameSceneDelegate{
         self.createCells()        
     }
     
+    func deInitialize(){
+        for each in self.set {
+            each.deInitialize()
+        }
+        self.set.removeAll()
+        self.set = nil
+    }
     
     private func actualWidth() -> CGFloat{
         return CGFloat(self.cols) * cellWidth
@@ -317,4 +318,9 @@ class Cells : CellDelegate, GameSceneDelegate{
     func gameStart() {
         
     }
+    
+    func gameRestart() {
+        
+    }
+    
 }
