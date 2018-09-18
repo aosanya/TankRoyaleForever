@@ -17,7 +17,7 @@ extension UserInfo : UserInfo_Brain  {
         UserDefaults.standard.removeObject(forKey: "brains")
     }
     
-    static func addBrain(brain : Brain){
+    private static func addBrain(brain : Brain){
         var brains = self.brains()
         brains.append(brain)
         
@@ -50,17 +50,26 @@ extension UserInfo : UserInfo_Brain  {
     }
     
     static func brain(brain : Brain){
-        var brains = self.brains()
-        brains = brains.filter({m in m.id != brain.id})
+        var prevBrains = self.brains()
+        let toReplace = prevBrains.filter({m in m.isMine == brain.isMine && m.assetType == brain.assetType})
+        
+        for each in toReplace{
+            prevBrains = prevBrains.filter({m in m.id != each.id})
+        }
+        self.brains(brains: prevBrains)
         self.addBrain(brain: brain)
     }
     
-    static func brain(isMine : Bool) -> Brain?{
-        if let brain = self.brains().filter({m in m.isMine == isMine}).first{
+    static func brain(isMine : Bool, assetType : UInt) -> Brain?{
+        if let brain = self.brains().filter({m in m.isMine == isMine && m.assetType == assetType}).first{
             return brain
         }
         
         return nil
+    }
+    
+    static func brains(isMine : Bool) -> [Brain]{
+        return self.brains().filter({m in m.isMine == isMine})
     }
     
     

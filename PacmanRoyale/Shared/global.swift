@@ -9,6 +9,22 @@
 import UIKit
 import SpriteKit
 
+func clientId() -> String{
+    return (UIDevice.current.identifierForVendor!.uuidString)
+}
+
+func generateID(clientId : String, prefix : String, suffix : String) -> String{
+    let part1 = clientId + "_" + prefix
+    let part2 = "_\(CFAbsoluteTimeGetCurrent())" + "_" + "\(NSUUID().uuidString)"
+    
+    if suffix != "" {
+        return part1 + "_" + part2 + "_" + suffix
+    }
+    else{
+        return part1 + "_" + part2
+    }    
+}
+
 func randint(_ lowerLimit : Int, upperLimit : Int) -> Int{
     var negative = 0
     var lowerLimit  = lowerLimit

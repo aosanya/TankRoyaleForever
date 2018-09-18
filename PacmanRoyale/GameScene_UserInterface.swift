@@ -58,8 +58,10 @@ extension GameScene : GameScene_UserInterface{
             let radius : Int = 1
             _ = self.selectedAsset!.cell.relativity(cell: self.selectedCells.first!)
             self.selectedAsset!.nextCell = self.selectedCells.first!
-            self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].state(requestingAsset: self.selectedAsset!, radius: 1))
-            self.selectedAsset!.think()
+            self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].relativeState(requestingAsset: self.selectedAsset!, radius: 1))
+            //Manual Decision
+            self.selectedAsset!.cellProposed(cell: self.selectedCells[0])
+            //
         }
         
         if self.selectedAsset != nil{
@@ -108,7 +110,7 @@ extension GameScene : GameScene_UserInterface{
     }
     
     func addMoveDecision(asset : Asset, preferredState : UInt){
-        (asset as! LivingAsset).brain.addDecisions(states: asset.state(radius: 1, includingSelf: false), preferredState: preferredState)
+        (asset as! LivingAsset).brain.addDecisions(states: asset.relativeState(radius: 1, includingSelf: false), preferredState: preferredState)
         UserInfo.brain(brain: (asset as! LivingAsset).brain)
         self.assets.propagateBrain(asset: asset)
     }

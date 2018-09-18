@@ -99,7 +99,43 @@ protocol GameObjectDelegate {
 class GameObject : SKSpriteNode{
     var id : UInt = 0
     var type : GameObjectType
-    var cell : Cell
+    
+    private var _cell : Cell!
+    var cell : Cell{
+        get{
+            return _cell
+        }
+        set{
+            if _cell != nil{
+                if self is Asset{
+                    _cell!.asset = nil
+                }
+                if self is CellObject{
+                    _cell!.object = nil
+                }
+            }
+            if self is Asset{
+                newValue.asset = self
+            }
+            if self is CellObject{
+                newValue.object = self
+            }
+            _cell = newValue
+        }
+    }
+    
+//        didSet{
+//            if self is Asset{
+//                oldValue.asset = nil
+//                cell.asset = self
+//            }
+//            if self is CellObject{
+//                oldValue.object = nil
+//                cell.object = self
+//            }
+//        }
+//    }
+    
     var label : SKLabelNode!
     var labelBackGround : SKSpriteNode!
     var gameObjectDelegate : GameObjectDelegate?
@@ -116,11 +152,12 @@ class GameObject : SKSpriteNode{
         }
     }
     
-    init(cell : Cell, texture: SKTexture?, color: UIColor, size: CGSize, objectType : GameObjectType) {
-        self.cell = cell
+    init(cell : Cell, texture: SKTexture?, color: UIColor, size: CGSize, objectType : GameObjectType) {       
         self.type = objectType
         self.strength = objectType.points()
+        
         super.init(texture: texture, color: color, size: size)
+        self.cell = cell
         self.addLabel()
         self.updateText()
     }
@@ -129,10 +166,9 @@ class GameObject : SKSpriteNode{
     init(id : UInt,cell : Cell, assetType : AssetType, strength : Int) {
         self.id = id
         self.type = assetType.gameObjectType()
-        self.cell = cell
         self.strength = strength
         super.init(texture: SKTexture(image: self.type.image()), color: UIColor.clear, size: assetType.size())
-        
+        self.cell = cell
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
         self.physicsBody?.categoryBitMask = assetType.gameObjectType().categoryBitMask()
         self.physicsBody?.contactTestBitMask = assetType.gameObjectType().contactTestBitMask()
@@ -141,15 +177,18 @@ class GameObject : SKSpriteNode{
         self.physicsBody?.allowsRotation = false
         self.addLabel()
         self.updateText()
+        
+        
     }
     
-     
+    
     
     init(cell : Cell, objectType : GameObjectType, size : CGSize) {
         self.type = objectType
-        self.cell = cell
+        
         self.strength = objectType.points()
         super.init(texture: SKTexture(image: objectType.image()), color: UIColor.clear, size: size)
+        self.cell = cell
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
         self.physicsBody?.categoryBitMask = objectType.categoryBitMask()
         self.physicsBody?.contactTestBitMask = objectType.contactTestBitMask()
@@ -187,6 +226,7 @@ class GameObject : SKSpriteNode{
         self.addChild(self.labelBackGround)
     }
     
+
     
     private func updateText() {
         self.label!.text = "\(self.strength)"

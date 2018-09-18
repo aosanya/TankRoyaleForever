@@ -14,7 +14,7 @@ protocol Cell_AssetCreation {
 
 extension Cell : Cell_AssetCreation{
     func canCreateAsset() -> Bool{
-        return (self.isGreenHomeCell || self.isRedHomeCell) && self.asset == nil && self.isCreatingAsset == false
+        return (self.isGreenHomeCell || self.isRedHomeCell) && self.isEmpty()
     }
     
     func createAsset(isMine : Bool, duration : Double){
@@ -28,6 +28,8 @@ extension Cell : Cell_AssetCreation{
         self.delegate!.assetCreationComplete(cell: self, isMine: isMine)
         self.isCreatingAsset = false
     }
+    
+
     
     
     func startTimerShadow(isMine : Bool, duration : Double)  {
@@ -73,7 +75,7 @@ extension Cell : Cell_AssetCreation{
         
         timerShadow.run(SKAction.sequence([timerAction, addAssetAction, removeAction]), withKey : actionName)
         let completeAction = SKAction.run({() in self.raiseAssetCreationComplete(isMine: isMine)})
-        self.run(SKAction.sequence([SKAction.wait(forDuration: duration), completeAction]))
+        self.run(SKAction.sequence([SKAction.wait(forDuration: duration), completeAction]), withKey : actionName)
     }
     
 }

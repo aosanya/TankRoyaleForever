@@ -10,12 +10,16 @@ import Foundation
 
 class Brain : Codable{
     var isMine : Bool
+    var assetType : UInt
+    var level : Double
     var id : String
     var decisions : Set<Decision> = Set<Decision>()
     
-    init(isMine : Bool){
-        self.id = NSUUID().uuidString
+    init(isMine : Bool, assetType : UInt, level : Double){
+        self.id = generateID(clientId: clientId(), prefix: "Brain", suffix: "")
+        self.assetType = assetType
         self.isMine = isMine
+        self.level = level
     }
     
     func addDecisions(states : States, preferredState : UInt){
@@ -27,6 +31,7 @@ class Brain : Codable{
     
         self.decisions.insert(Decision(states: states, preferredState: preferredState))
     }
+    
     
     func describe(info : String) {
         print(info)

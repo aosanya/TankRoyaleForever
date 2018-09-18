@@ -21,6 +21,7 @@ class UserInfo{
         
         return level
     }
+    
     static func getScore() -> Double{
         if let score = UserDefaults.standard.value(forKey: scoreKey){
             return score as! Double

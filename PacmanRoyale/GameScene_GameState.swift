@@ -26,6 +26,8 @@ extension  GameScene : GameScene_GameState{
         }
     }
     
+    
+    
     func showingPoints() {
         self.cellsNode.popOut(duration: 1, callBack: fadeOutCellsNode)
     }

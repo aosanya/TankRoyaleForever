@@ -21,6 +21,7 @@ enum StateTypes : UInt{
     case hasSideHome = 10
     case hasTank = 11
 
+    
     case hasMyAsset = 15
     case hasEnemyAsset = 16
     case hasStrongerAsset = 17
@@ -36,6 +37,9 @@ enum StateTypes : UInt{
     case is225Degrees = 27
     case is270Degrees = 28
     case is315Degrees = 29
+    case isCreatingEnemy = 30
+    case isCreatingMine = 31
+    
     
     func mask() -> UInt{
         return 1 << self.rawValue

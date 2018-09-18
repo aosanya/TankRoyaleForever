@@ -14,21 +14,19 @@ protocol Asset_Actions {
 }
 
 extension Asset : Asset_Actions{
-    func move(preferredState : UInt){
+    func proposedCell(preferredState : UInt) -> Cell?{
         var proposedCells = cells.adjacentCell(cell: self.cell, state: preferredState)
         proposedCells = proposedCells.filter({m in m.isEmpty() == true})
         
         guard proposedCells.count > 0 else{
-            return
+            return nil
         }
         
         if proposedCells.count == 1{
-            self.cell = proposedCells.first!
-            return
+            return proposedCells.first!
         }
         else{
-            self.cell = proposedCells[randint(0, upperLimit: proposedCells.count - 1)]
-            return
+            return proposedCells[randint(0, upperLimit: proposedCells.count - 1)]
         }
     }
 }

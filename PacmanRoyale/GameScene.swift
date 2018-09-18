@@ -70,8 +70,6 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.loadAssets()
         //self.showGameOver()
         self.startResourceGeneration(interval: 2)
-        
-        
     }
 
     func deInitialize(){
@@ -246,7 +244,6 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func assetCreationComplete(cell: Cell, isMine: Bool) {
-        
         self.triggerCreatingAssets(isMine: isMine)
     }
     

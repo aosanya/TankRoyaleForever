@@ -33,7 +33,7 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
         if delegate != nil{
             self.delegates.append(delegate!)
         }
-        self.initializeBrains()
+        //self.initializeBrains()
         //self.createMyHomes()
         //self.createEnemyHomes()
         //self.createMyAssets()
@@ -52,13 +52,14 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     
     }
     
-    private func initializeBrains(){
-        let brains = UserInfo.brains()
-        if brains.count == 0{
-            UserInfo.addBrain(brain: Brain(isMine : true))
-            UserInfo.addBrain(brain: Brain(isMine : false))
-        }
-    }
+//    private func initializeBrains(){
+//        let brains = UserInfo.brains()
+//        if brains.count == 0{
+//
+//            UserInfo.addBrain(brain: Brain(isMine : true))
+//            UserInfo.addBrain(brain: Brain(isMine : false))
+//        }
+//    }
     
     func createAssets(cell : Int, isMine : Bool, strength : Int ){
         if let cell = self.cells.getCell(id: cell){
@@ -129,9 +130,11 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     }
     
     func propagateBrain(asset : Asset){
-        let candidates = self.living.filter({m in m.brain.id != (asset as! LivingAsset).brain.id && m.isMine == asset.isMine})
-        for each in candidates{
-            each.brain = (asset as! LivingAsset).brain
+        let candidates = self.living.filter({m in m.id != (asset as! LivingAsset).id && m.isMine == asset.isMine && m.assetType == asset.assetType})
+        
+        let newBrain = (asset as! LivingAsset).brain
+        for each in candidates{            
+            each.brain = newBrain
         }
     }
     
@@ -151,6 +154,7 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
             each.stop()
             each.popOut(duration: 1)
         }
+        self.createEnemyBrains()
     }
     
     func gameStart() {
@@ -159,5 +163,18 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     
     func gameRestart() {
         
+    }
+    
+    func createEnemyBrains(){
+        guard self.teamStrength(isMine: true) > self.teamStrength(isMine: false) else {
+            return
+        }
+        
+        let myBrains = UserInfo.brains(isMine: true)
+        
+        for each in myBrains{
+            each.isMine = false
+            UserInfo.brain(brain: each)
+        }
     }
 }

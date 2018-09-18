@@ -202,6 +202,10 @@ class Cells : CellDelegate, GameSceneDelegate{
         return self.set.filter({m in m.id == id}).first
     }
     
+    func getCell(row : Int, col : Int) -> Cell?{
+        return self.set.filter({m in m.pos.row == row && m.pos.col == col}).first
+    }
+    
     func getColCells(col : Int) -> [Cell]{
         return self.set.filter({m in m.pos.col == col})
     }
@@ -219,8 +223,16 @@ class Cells : CellDelegate, GameSceneDelegate{
             return [Cell]()
         }
         let radius : Int = 1
-        return self.radialCells(cell: cell, radius: radius, includingSelf: false).filter({m in m.state(requestingAsset: cell.asset!, radius: radius) == state})
+        return self.radialCells(cell: cell, radius: radius, includingSelf: false).filter({m in m.relativeState(requestingAsset: cell.asset! as! Asset, radius: radius) == state})
     }
+    
+//    func adjacentStaticCell(cell : Cell, state : UInt) -> [Cell]{
+//        guard cell.asset != nil else {
+//            return [Cell]()
+//        }
+//        let radius : Int = 1
+//        return self.radialCells(cell: cell, radius: radius, includingSelf: false).filter({m in m.staticState(requestingAsset: cell.asset! as! Asset, radius: radius) == state})
+//    }
     
     func relativeCell(cell : Cell, radAngle : CGFloat) -> Cell?{
         let row = Double(cos(radAngle)).rounded()
@@ -244,13 +256,19 @@ class Cells : CellDelegate, GameSceneDelegate{
         return results.filter({m in m.id != cell.id})
     }
     
-    func radialCellsState(asset : Asset, cell : Cell, radius : Int, includingSelf : Bool) -> States{
+    func relativeCellsState(asset : Asset, cell : Cell, radius : Int, includingSelf : Bool) -> States{
         
         let rCells = self.radialCells(cell: cell, radius: radius, includingSelf: false)
-        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0, $1.state(requestingAsset: asset, radius: radius))}
+        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0, $1.relativeState(requestingAsset: asset, radius: radius))}
         
         return States(set: Set(states.map({m in State(index: m.0, value: m.1)})))
     }
+    
+//    func staticCellsState(asset : Asset, cell : Cell, radius : Int, includingSelf : Bool) -> States{
+//        let rCells = self.radialCells(cell: cell, radius: radius, includingSelf: false)
+//        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0, $1.staticState(requestingAsset: asset, radius: radius))}
+//        return States(set: Set(states.map({m in State(index: m.0, value: m.1)})))
+//    }
     
     func objectChanged(cell: Cell) {
         let myRadialCells = self.radialCells(cell: cell, radius: 1, includingSelf: true)

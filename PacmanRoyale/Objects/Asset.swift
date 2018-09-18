@@ -8,7 +8,7 @@
 
 import SpriteKit
 
-enum AssetType : Int{
+enum AssetType : UInt{
     case tank1 = 1
     
     func images() -> UIImage{
@@ -66,18 +66,12 @@ class Asset : GameObject{
     
     var isMine : Bool
     
-   override var cell : Cell{
-        didSet{
-            self.cell.asset = self
-            oldValue.asset = nil
-        }
-    }
+    
     
     init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int){
         self.assetType = assetType
         self.isMine = isMine
         super.init(id : id,cell : cell, assetType : self.assetType, strength : strength)
-        self.cell.asset = self
         self.position = self.cell.position
         self.zPosition = self.cell.zPosition + 10
         self.colorTeam()
@@ -140,11 +134,13 @@ class Asset : GameObject{
         self.strength += object.type.points()
     }
     
-    func performDecision(preferredState : UInt) {
-        self.move(preferredState : preferredState)
+
+    func relativeState(radius : Int, includingSelf : Bool) -> States{
+        return cells.relativeCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)
     }
     
-    func state(radius : Int, includingSelf : Bool) -> States{
-        return cells.radialCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)
-    }
+//    func staticState(radius : Int, includingSelf : Bool) -> States{
+//        return cells.staticCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)
+//    }
+    
 }
