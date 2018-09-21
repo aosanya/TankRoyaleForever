@@ -18,10 +18,6 @@ protocol AssetsDelegate{
 }
 
 class Assets : GameObjectDelegate, GameSceneDelegate{
-   
-    
-
-    
     var living : [LivingAsset]! = [LivingAsset]()
     var nonliving : [NonLivingAsset]! = [NonLivingAsset]()
     var cells : Cells
@@ -97,13 +93,27 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     
     private func addLiving(type : AssetType, cell : Cell, isMine : Bool, strength :  Int){
         currentId += 1
-        let asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, strength: strength)
+        var asset : LivingAsset!
+        if isMine{
+            asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, strength: strength)
+        }
+        else{
+            asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, strength: strength, brain : getCurrentEnemyBrain())
+        }
+        
         asset.gameObjectDelegate = self
         self.living.append(asset)
 
         for each in self.delegates{
             each.assetCreated(thisAsset: asset)
         }
+    }
+    
+    private func getCurrentEnemyBrain() -> Brain?{
+        if let enemy = self.living.filter({m in m.isMine == false}).first {
+            return enemy.brain
+        }
+        return nil
     }
     
     private func addNonLiving(type : AssetType, cell : Cell, isMine : Bool, strength :  Int){

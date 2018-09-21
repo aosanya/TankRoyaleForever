@@ -57,7 +57,7 @@ extension GameScene : GameScene_UserInterface{
         if self.selectedAsset != nil && self.selectedCells.count == 1{
             let radius : Int = 1
             _ = self.selectedAsset!.cell.relativity(cell: self.selectedCells.first!)
-            self.selectedAsset!.nextCell = self.selectedCells.first!
+            //self.selectedAsset!.nextCell = self.selectedCells.first!
             self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].relativeState(requestingAsset: self.selectedAsset!, radius: 1))
             //Manual Decision
             self.selectedAsset!.cellProposed(cell: self.selectedCells[0])

@@ -160,6 +160,8 @@ class Cells : CellDelegate, GameSceneDelegate{
         }
     }
     
+
+    
     func setGreenHomeCells(row : Int){
         let cells = self.getRowCells(row: row)
         for each in cells{
@@ -257,10 +259,8 @@ class Cells : CellDelegate, GameSceneDelegate{
     }
     
     func relativeCellsState(asset : Asset, cell : Cell, radius : Int, includingSelf : Bool) -> States{
-        
         let rCells = self.radialCells(cell: cell, radius: radius, includingSelf: false)
-        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0, $1.relativeState(requestingAsset: asset, radius: radius))}
-        
+        let states = rCells.sorted(by: {$0.pos.row < $1.pos.row  && $0.pos.col < $1.pos.col}).enumerated().map{($0,  $1.relativeState(requestingAsset: asset, radius: radius), $1.pos)}
         return States(set: Set(states.map({m in State(index: m.0, value: m.1)})))
     }
     

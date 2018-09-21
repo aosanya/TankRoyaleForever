@@ -59,8 +59,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var delegates : [GameSceneDelegate] = [GameSceneDelegate]()
     
     override func didMove(to view: SKView) {
-        UserDefaults.standard.removeObject(forKey: "brains")
-        UserDefaults.standard.removeObject(forKey: "score")
+       // UserDefaults.standard.removeObject(forKey: "brains")
+        //UserDefaults.standard.removeObject(forKey: "score")
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
         self.physicsWorld.contactDelegate = self
         self.addTopMenu()
@@ -139,6 +139,16 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.redHomeRow = rows - 1
         cells.setRedHomeCells(row: self.redHomeRow)
         cells.setGreenHomeCells(row: self.greenHomeRow)
+        
+//        //Debug Code
+//        let redHome = cells.getCell(id: 12)
+//        redHome?.isRedHomeCell = true
+//
+//        let greenHome = cells.getCell(id: 2)
+//        greenHome?.isGreenHomeCell = true
+//        //End of Debug
+        
+
         self.triggerCreatingAssets(isMine: true)
         self.triggerCreatingAssets(isMine: false)
     }
@@ -207,18 +217,25 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         }
         
         var actionName : String = ""
-        var row : Int
+        var homeCells : [Cell] = [Cell]()
         if isMine == true{
-            row = greenHomeRow
             actionName = "createGreenAssets"
+            homeCells = cells.set.filter({m in m.isGreenHomeCell == true && m.canCreateAsset()})
         }
         else{
-            row = redHomeRow
+            homeCells = cells.set.filter({m in m.isRedHomeCell == true && m.canCreateAsset()})
             actionName = "createRedAssets"
         }
         
         self.removeAction(forKey: actionName)
-        let randomCell = cells.randomEmptyCell(row: row)
+        
+        var randomCell : Cell? = nil
+        
+        if homeCells.count > 0{
+            let randCellPos = randint(0, upperLimit: homeCells.count - 1)
+            randomCell = homeCells[randCellPos]
+        }
+        
         var assetCreationInterval : Double = 0
         if isMine == true{
             assetCreationInterval = greenAssetCreationInterval
@@ -292,7 +309,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     func assetCreated(thisAsset: Asset) {
         if thisAsset is LivingAsset{
             let thisLivingAsset : LivingAsset = thisAsset as! LivingAsset
-            thisLivingAsset.livingAssetDelegate = self
+            thisLivingAsset.livingAssetDelegates.append(self)
         }
         
         self.cellsNode.addChild(thisAsset)
@@ -340,8 +357,6 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         let sequence = SKAction.sequence([moveAction, removeAction])
         thisShot.run(sequence)
         thisShot.zPosition = livingAsset.zPosition + 1
-        
-        
     }
     
     func dead(livingAsset: LivingAsset) {

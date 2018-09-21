@@ -16,7 +16,7 @@ protocol LivingAssetDelegate {
 
 class LivingAsset : Asset, StateDelegate{
     private var status : Status!
-    var livingAssetDelegate : LivingAssetDelegate?
+    var livingAssetDelegates = [LivingAssetDelegate]()
     
     var brain : Brain!{
         didSet{
@@ -27,7 +27,9 @@ class LivingAsset : Asset, StateDelegate{
     var state : Double{
         set {
             self.status.state = newValue
-            self.livingAssetDelegate?.stateChanged(livingAsset: self)
+            for each in self.livingAssetDelegates{
+                each.stateChanged(livingAsset: self)
+            }
         }
         get { return self.status.state }
         
@@ -40,7 +42,6 @@ class LivingAsset : Asset, StateDelegate{
     }
     internal var isMakingDecision : Bool = false
     var nextCell : Cell? = nil
-    
     
 //    override var cell : Cell{
 //        get {
@@ -75,6 +76,16 @@ class LivingAsset : Asset, StateDelegate{
     override init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int){
         super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
         self.brain = getBrain()
+        self.initialize()
+    }
+
+    init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int, brain : Brain?){
+        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
+        self.brain = brain !== nil ? brain : getBrain()
+        self.initialize()
+    }
+
+    func initialize(){
         if isMine == false {
             self.zRotation = angleToRadians(angle: 180)
         }
@@ -107,11 +118,14 @@ class LivingAsset : Asset, StateDelegate{
         var betterCandidates = brains.filter({m in m.level >= level}).sorted(by: {$0.level < $1.level})
         
         guard betterCandidates.count > 0 else {
-            let brain = UserInfo.brain(isMine : true, assetType: self.assetType.rawValue)!
-            brain.isMine = false
-            UserInfo.brain(brain: brain)
+            let brains2 = UserInfo.brains()
             
-            return getEnemyBrain()
+            if let brain = UserInfo.brain(isMine : true, assetType: self.assetType.rawValue){
+                brain.isMine = false
+                UserInfo.brain(brain: brain)
+                return getEnemyBrain()
+            }
+            return Brain(isMine: isMine, assetType: self.assetType.rawValue, level: 1)
         }
         
         return betterCandidates[0]
@@ -152,8 +166,8 @@ class LivingAsset : Asset, StateDelegate{
     }
     
     func shoot(){
-        if self.livingAssetDelegate != nil{
-            self.livingAssetDelegate?.addShot(livingAsset: self)
+        for each in self.livingAssetDelegates{
+            each.addShot(livingAsset: self)
         }
         self.loopShooting()
     }
@@ -225,6 +239,10 @@ class LivingAsset : Asset, StateDelegate{
     
     
     func ActionComplete(){
+        if self.prevCell != nil{
+            self.prevCell = nil
+        }
+        
         if self.delegate != nil{
             self.delegate!.CompletedAction(asset: self)
         }
@@ -269,7 +287,9 @@ class LivingAsset : Asset, StateDelegate{
     }
     
     func zeroState(thisStatus: Status) {
-        self.livingAssetDelegate?.dead(livingAsset: self)
+        for each in self.livingAssetDelegates{
+            each.dead(livingAsset: self)
+        }
     }
     
     func deInit(){
@@ -282,6 +302,7 @@ class LivingAsset : Asset, StateDelegate{
         self.physicsBody = nil
         self.cell.asset = nil
         self.cell.object = nil
+        self.nextCell = nil
         self.fadeOut(duration: 0.1, callBack: self.remove)
         
     }

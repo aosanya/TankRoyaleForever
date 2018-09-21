@@ -101,6 +101,8 @@ class GameObject : SKSpriteNode{
     var type : GameObjectType
     
     private var _cell : Cell!
+    private var _prevCell : Cell?
+    
     var cell : Cell{
         get{
             return _cell
@@ -108,9 +110,13 @@ class GameObject : SKSpriteNode{
         set{
             if _cell != nil{
                 if self is Asset{
+                    _cell!.prevAsset = self
+                    _cell!.asset!.prevCell = _cell!
                     _cell!.asset = nil
                 }
                 if self is CellObject{
+                    _cell!.object = self
+                    _cell!.object!.prevCell = _cell!
                     _cell!.object = nil
                 }
             }
@@ -123,6 +129,20 @@ class GameObject : SKSpriteNode{
             _cell = newValue
         }
     }
+    
+    var prevCell : Cell?{
+        get{
+            return _prevCell
+        }
+        set{
+            if _prevCell != nil{
+                if newValue == nil{
+                    _prevCell!.prevAsset = nil
+                }
+            }
+            _prevCell = newValue
+        }
+    }        
     
 //        didSet{
 //            if self is Asset{

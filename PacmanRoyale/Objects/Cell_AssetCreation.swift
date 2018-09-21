@@ -27,6 +27,7 @@ extension Cell : Cell_AssetCreation{
         self.isReadyToCreatAsset = true
         self.delegate!.assetCreationComplete(cell: self, isMine: isMine)
         self.isCreatingAsset = false
+        
     }
     
 

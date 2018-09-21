@@ -14,7 +14,7 @@ private let State_value = "State_value"
 class State : Hashable, Codable{
     var index : Int
     var value : UInt
-    
+        
     init (index : Int, value : UInt){
         self.index = index
         self.value = value

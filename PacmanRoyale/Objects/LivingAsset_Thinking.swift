@@ -31,20 +31,23 @@ extension LivingAsset : LivingAsset_Thinking{
         if self.isMine == false {
             print("stop")
         }
+        else{
+            print("stop 2")
+        }
         
         if isPerformingAction() == true{
             self.isMakingDecision = false
             return
         }
         
-        guard self.nextCell == nil else{
-            if self.cell.id != nextCell!.id{
-                self.cellProposed(cell: nextCell!)
-            }
-            self.nextCell = nil
-            self.isMakingDecision = false
-            return
-        }
+//        guard self.nextCell == nil else{
+//            if self.cell.id != nextCell!.id{
+//                self.cellProposed(cell: nextCell!)
+//            }
+//            self.nextCell = nil
+//            self.isMakingDecision = false
+//            return
+//        }
         
         //        guard self.isMine else {
         //            return
@@ -89,6 +92,7 @@ extension LivingAsset : LivingAsset_Thinking{
     }
     
     func cellProposed(cell : Cell){
+        
         if cell.isEmpty() {
             self.cell = cell
             self.moveToCell()

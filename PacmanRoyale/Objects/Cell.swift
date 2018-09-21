@@ -14,6 +14,7 @@ enum CellState : UInt{
     case selected = 2
     case nextmove = 3
     
+    
     func image() -> UIImage{
         return #imageLiteral(resourceName: "WhiteCellDotted")
     }
@@ -53,7 +54,9 @@ struct CellPos : Hashable{
     }
 }
 
-class Cell : SKSpriteNode{
+class Cell : SKSpriteNode, LivingAssetDelegate{
+    
+    
     var id : Int
     var pos : CellPos
     var isCreatingAsset : Bool = false{
@@ -61,6 +64,7 @@ class Cell : SKSpriteNode{
             if isCreatingAsset == false{
                 self.isReadyToCreatAsset = false
             }
+            self.setColor()
         }
     }
     
@@ -86,7 +90,21 @@ class Cell : SKSpriteNode{
                 if delegate != nil{
                     delegate!.assetChanged(cell: self)
                 }
-                
+                self.setColor()
+            }
+            if asset != nil && asset is LivingAsset {
+                (asset as! LivingAsset).livingAssetDelegates.append(self)
+            }
+        }
+    }
+    
+    var prevAsset : GameObject?{
+        didSet{
+            if prevAsset != oldValue{
+                self.setColor()
+            }
+            if prevAsset != nil && prevAsset is LivingAsset {
+                (prevAsset as! LivingAsset).livingAssetDelegates.append(self)
             }
         }
     }
@@ -111,8 +129,7 @@ class Cell : SKSpriteNode{
         self.id = id
         self.pos = CellPos(row: row, col: col)
         super.init(texture: SKTexture(image: self.actionstate.image()), color: UIColor.clear, size: size)
-        //self.color = CellState.empty.color()
-        //self.colorBlendFactor = 1
+        
         self.addLabel()
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
         self.physicsBody?.categoryBitMask = GameObjectType.cell.categoryBitMask()
@@ -121,6 +138,8 @@ class Cell : SKSpriteNode{
         self.physicsBody?.isDynamic = false
         self.physicsBody?.allowsRotation = false
         //self.text("\(self.id)")
+        
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -182,7 +201,7 @@ class Cell : SKSpriteNode{
         if self.isCreatingAsset == true{
             return false
         }
-        if self.contactingAssets.count > 0{
+        if self.prevAsset != nil {
             return false
         }
         return true
@@ -202,215 +221,7 @@ class Cell : SKSpriteNode{
         self.stars!.position  = CGPoint(x: 0, y: self.object!.frame.maxY + self.stars!.size.height * 0.3)
     }
     
-    private func objectState() -> UInt{
-        var state : UInt = 0
-        if self.object != nil{
-//            if self.object!.type.isCandy(){
-//                state = state | StateTypes.hasCandy.mask()
-//                switch self.object!.type{
-//                case .candy1:
-//                    state = state | StateTypes.hasCandy1.mask()
-//                case .candy2:
-//                    state = state | StateTypes.hasCandy2.mask()
-//                case .candy3:
-//                    state = state | StateTypes.hasCandy3.mask()
-//                case .candy4:
-//                    state = state | StateTypes.hasCandy4.mask()
-//                case .candy5:
-//                    state = state | StateTypes.hasCandy5.mask()
-//                case .tank1, .cell, .mainHome, .sideHome: ()
-//
-//                }
-//            }
-        }
-        return 0
-    }
-   
-    func assetCreationState() -> UInt{
-        var state : UInt = 0
-        if self.action(forKey: "creatingMyCells") != nil {
-            state =  state | StateTypes.isCreatingMine.mask()
-        }
-        if self.action(forKey: "creatingEnemyCells") != nil {
-            state =  state | StateTypes.isCreatingEnemy.mask()
-        }
-        return state
-    }
-    
-    func assetState(requestingAsset : Asset) -> UInt{
-        var state : UInt = 0
-        if self.asset != nil{
-            let actualAsset = self.asset! as! Asset
-            switch self.asset!.type{
-            case .tank1:
-                state =  state | StateTypes.hasTank.mask()
-            case .shot : ()
-            case .cell : ()
-                
-            }
-            
-            //Team
-            if actualAsset.isMine == requestingAsset.isMine{
-                state =  state | StateTypes.hasMyAsset.mask()
-            }
-            else{
-                state =  state | StateTypes.hasEnemyAsset.mask()
-            }
-            
-            //Strength
-            if requestingAsset.strength < self.asset!.strength{
-                state =  state | StateTypes.hasStrongerAsset.mask()
-            }
-            else if requestingAsset.strength > self.asset!.strength{
-                state =  state | StateTypes.hasWeakerAsset.mask()
-            }
-            else{// are equal
-                state =  state | StateTypes.hasEqualAsset.mask()
-            }
-        }
-        return state
-    }
-    
-    
-    func proximityToHomeState(requestingAsset : Asset) -> UInt{
-        guard myHomePos !=  nil else{
-            return 0
-        }
-        
-        let actualHomePos : CellPos
-        if requestingAsset.isMine == true{
-            actualHomePos = myHomePos!
-        }
-        else{
-            actualHomePos = enemyHomePos!
-        }
-        
-        let assetDistance = getCellDistance(requestingAsset.cell.pos, posB: actualHomePos)
-        let cellDistance = getCellDistance(self.pos, posB: actualHomePos)
-        
-        if assetDistance > cellDistance{
-            return StateTypes.isNearerToHome.mask()
-        }
-        return 0
-    }
-    
-    func proximityToEnemyHomeState(requestingAsset : Asset) -> UInt{
-        guard myHomePos !=  nil else{
-            return 0
-        }
-        
-        let actualHomePos : CellPos
-        if requestingAsset.isMine == false{
-            actualHomePos = myHomePos!
-        }
-        else{
-            actualHomePos = enemyHomePos!
-        }
-        
-        let assetDistance = getCellDistance(requestingAsset.cell.pos, posB: actualHomePos)
-        let cellDistance = getCellDistance(self.pos, posB: actualHomePos)
-        
-        if assetDistance > cellDistance{
-            return StateTypes.isNearerToEnemyHome.mask()
-        }
-        return 0
-    }
-    
-    func relativeOrientation(requestingAsset : Asset) -> UInt{
-        
-        print("- - - - - - - - -")
-        print(requestingAsset.cell.position)
-        print(self.position)
-        print("- - - - - - - - -")
-        
-        let direction = getRadAngle(requestingAsset.cell.position, pointB: self.position)
-        var angleDirection = radiansToAngle(CGFloat(direction))
-        
-        let forwardDirection = (requestingAsset as! LivingAsset).forwardDirection
-        angleDirection = angleDirection - radiansToAngle(forwardDirection)
-        let rad = angleToRadians(angle: angleDirection)
-        var angle = radiansToAngle(rad)
-        angle = negativeAngleToPositive(angle: angle)
-        
-        var roundTo45 = roundTo(val: angle, factor: 45)
-        roundTo45 = roundTo45.truncatingRemainder(dividingBy: 360)
-        
-        switch roundTo45 {
-        case 0:
-            return StateTypes.is0Degrees.mask()
-        case 45:
-            return StateTypes.is45Degrees.mask()
-        case 90:
-            return StateTypes.is90Degrees.mask()
-        case 135:
-            return StateTypes.is135Degrees.mask()
-        case 180:
-            return StateTypes.is180Degrees.mask()
-        case 225:
-            return StateTypes.is225Degrees.mask()
-        case 270:
-            return StateTypes.is270Degrees.mask()
-        case 315:
-            return StateTypes.is315Degrees.mask()
-        default:
-            return 0
-        }
-    }
-    
-    func staticOrientation(requestingAsset : Asset) -> UInt{
-        let direction = getRadAngle(requestingAsset.cell.position, pointB: self.position)
-        let angleDirection = radiansToAngle(CGFloat(direction))
-        //angleDirection = angleDirection
-        let rad = angleToRadians(angle: angleDirection)
-        var angle = radiansToAngle(rad)
-        angle = negativeAngleToPositive(angle: angle)
-        
-        var roundTo45 = roundTo(val: angle, factor: 45)
-        roundTo45 = roundTo45.truncatingRemainder(dividingBy: 360)
-        
-        switch roundTo45 {
-        case 0:
-            return StateTypes.is0Degrees.mask()
-        case 45:
-            return StateTypes.is45Degrees.mask()
-        case 90:
-            return StateTypes.is90Degrees.mask()
-        case 135:
-            return StateTypes.is135Degrees.mask()
-        case 180:
-            return StateTypes.is180Degrees.mask()
-        case 225:
-            return StateTypes.is225Degrees.mask()
-        case 270:
-            return StateTypes.is270Degrees.mask()
-        case 315:
-            return StateTypes.is315Degrees.mask()
-        default:
-            return 0
-        }
-    }
-    
-    func relativeState(requestingAsset : Asset, radius : Int) -> UInt{
-        return
-            self.relativeOrientation(requestingAsset:requestingAsset) |
-            self.assetState(requestingAsset: requestingAsset) |
-            self.proximityToHomeState(requestingAsset: requestingAsset)  |
-            self.proximityToEnemyHomeState (requestingAsset: requestingAsset) |
-            self.assetCreationState()
-    }
-    
-//    func staticState(requestingAsset : Asset, radius : Int) -> UInt{
-//
-//        return
-//            self.staticOrientation(requestingAsset:requestingAsset)
-//
-//
-////        return
-////            self.staticOrientation(requestingAsset:requestingAsset) |
-////            self.assetState(requestingAsset: requestingAsset) |
-////            self.proximityToHomeState(requestingAsset: requestingAsset)  |
-////            self.proximityToEnemyHomeState (requestingAsset: requestingAsset)
-//    }
+  
     
     func relativity(cell : Cell) -> (Int, Int){
         return (cell.pos.row - self.pos.row,  cell.pos.col - self.pos.col)
@@ -434,4 +245,20 @@ class Cell : SKSpriteNode{
         }
     }    
 
+    func addShot(livingAsset: LivingAsset) {
+        
+    }
+    
+    func dead(livingAsset: LivingAsset) {
+        if asset != nil && asset!.id == livingAsset.id{
+            asset = nil
+        }
+        if prevAsset != nil && prevAsset!.id == livingAsset.id{
+            prevAsset = nil
+        }
+    }
+    
+    func stateChanged(livingAsset: LivingAsset) {
+        
+    }
 }

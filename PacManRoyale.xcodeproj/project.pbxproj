@@ -70,6 +70,7 @@
 		EA9B193E20FF9A0B00BA6EDC /* StateTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B193D20FF9A0B00BA6EDC /* StateTypes.swift */; };
 		EA9B193F20FF9A0B00BA6EDC /* StateTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B193D20FF9A0B00BA6EDC /* StateTypes.swift */; };
 		EAA356EF21511804009FC972 /* Cell_State.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356EE21511804009FC972 /* Cell_State.swift */; };
+		EAA356F0215201CA009FC972 /* Cell_State.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356EE21511804009FC972 /* Cell_State.swift */; };
 		EAD239AB21022A6100CCD8B2 /* TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AA21022A6100CCD8B2 /* TopBar.swift */; };
 		EAD239AF21022FD400CCD8B2 /* SKSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */; };
 		EAD239B021022FD400CCD8B2 /* SKSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */; };
@@ -534,6 +535,7 @@
 				EADB6FC720FD3819001DDAF3 /* Decision.swift in Sources */,
 				EA01851D20FD16F900B96508 /* CellObject.swift in Sources */,
 				EA6411E0213F9100009FB9D6 /* TopBar.swift in Sources */,
+				EAA356F0215201CA009FC972 /* Cell_State.swift in Sources */,
 				EA01851C20FD16E200B96508 /* Resources.swift in Sources */,
 				EA2EDD6720E54ECB00BAACA2 /* UserInfo_Brain.swift in Sources */,
 				EAE7F112210B6EFF0033E2A9 /* SKNode.swift in Sources */,
