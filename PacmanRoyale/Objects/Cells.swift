@@ -108,17 +108,12 @@ class Cells : CellDelegate, GameSceneDelegate{
     }
     
     private func randomEmptyCell() -> Cell?{
-        var candidates = self.set.filter({m in m.isEmpty() && m.isCreatingAsset == false && m.isRedHomeCell == false && m.isGreenHomeCell == false})
+        var candidates = self.set.filter({m in m.isEmpty() && m.isRedHomeCell == false && m.isGreenHomeCell == false})
         
         guard candidates.count > 0 else {
             return nil
         }
-        
-        candidates = candidates.filter({m in m.contactingAssets.count == 0})
-        
-        guard candidates.count > 0 else {
-            return nil
-        }
+
         
         let candidate = candidates[randint(0, upperLimit: candidates.count - 1)]
         
@@ -130,14 +125,8 @@ class Cells : CellDelegate, GameSceneDelegate{
         
         guard candidates.count > 0 else {
             return nil
-        }
-        
-        candidates = candidates.filter({m in m.contactingAssets.count == 0})
-        
-        guard candidates.count > 0 else {
-            return nil
-        }
-        
+        }        
+       
         let candidate = candidates[randint(0, upperLimit: candidates.count - 1)]
         
         return candidate
@@ -225,7 +214,20 @@ class Cells : CellDelegate, GameSceneDelegate{
             return [Cell]()
         }
         let radius : Int = 1
-        return self.radialCells(cell: cell, radius: radius, includingSelf: false).filter({m in m.relativeState(requestingAsset: cell.asset! as! Asset, radius: radius) == state})
+        //return self.radialCells(cell: cell, radius: radius, includingSelf: false).filter({m in m.relativeState(requestingAsset: cell.asset! as! Asset, radius: radius) == state})
+        
+        let radialCells = self.radialCells(cell: cell, radius: radius, includingSelf: false)
+        let equal = radialCells.filter({m in m.relativeState(requestingAsset: cell.asset! as! Asset, radius: radius) == state})
+        guard equal.count == 0 else{
+            return equal
+        }
+        
+        let subSet = radialCells.filter({m in m.relativeState(requestingAsset: cell.asset! as! Asset, radius: radius) | state == m.relativeState(requestingAsset: cell.asset! as! Asset, radius: radius)})
+        guard subSet.count == 0 else{
+            return subSet
+        }
+        
+        return [Cell]()
     }
     
 //    func adjacentStaticCell(cell : Cell, state : UInt) -> [Cell]{

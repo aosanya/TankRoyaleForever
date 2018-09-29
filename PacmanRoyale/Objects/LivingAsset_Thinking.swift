@@ -28,32 +28,13 @@ extension LivingAsset : LivingAsset_Thinking{
             return
         }
         
-        if self.isMine == false {
-            print("stop")
-        }
-        else{
-            print("stop 2")
-        }
         
         if isPerformingAction() == true{
             self.isMakingDecision = false
             return
         }
         
-//        guard self.nextCell == nil else{
-//            if self.cell.id != nextCell!.id{
-//                self.cellProposed(cell: nextCell!)
-//            }
-//            self.nextCell = nil
-//            self.isMakingDecision = false
-//            return
-//        }
-        
-        //        guard self.isMine else {
-        //            return
-        //        }
-        
-        if let decision = self.brain.getDecision(testStates: self.relativeState(radius: 1, includingSelf: false)){
+        if let decision = self.brain.getDecision(testStates: self.relativeState){
             performDecision(preferredState: decision)
         }
         
@@ -62,7 +43,18 @@ extension LivingAsset : LivingAsset_Thinking{
         self.isMakingDecision = false
     }
     
+    func updateRelativeState(radius : Int, includingSelf : Bool){
+        guard self.initialized == true else {
+            return
+        }
+        self.relativeState = cells.relativeCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)
+    }
+    
     func autoThink(){
+        guard self.initialized == true else {
+            return
+        }
+        
         guard isPerformingAction() == false else{
             stopShooting()
             return
@@ -79,11 +71,37 @@ extension LivingAsset : LivingAsset_Thinking{
         }
         else{
             self.stopShooting()
+            self.faceEnemyCell()
+        }
+    }
+    
+    func getEnemyCell() -> Cell?{
+        let proposedCell = self.proposedCellToTurnTo(preferredState : StateTypes.hasEnemyAsset.mask())
+        
+        guard proposedCell != nil else {
+            return nil
+        }
+        
+        return proposedCell
+    }
+    
+    func faceEnemyCell(){
+        if let target = self.getEnemyCell(){
+            self.cellProposed(cell: target)
         }
     }
     
     func performDecision(preferredState : UInt) {
-        let proposedCell = self.proposedCell(preferredState : preferredState)
+        let proposedCell = self.proposedCellToMoveTo(preferredState : preferredState)
+        
+        guard proposedCell != nil else {
+            return
+        }
+        self.cellProposed(cell: proposedCell!)
+    }
+    
+    private func performAutoDecision(preferredState : UInt) {
+        let proposedCell = self.proposedCellToMoveTo(preferredState : preferredState)
         
         guard proposedCell != nil else {
             return
@@ -92,8 +110,7 @@ extension LivingAsset : LivingAsset_Thinking{
     }
     
     func cellProposed(cell : Cell){
-        
-        if cell.isEmpty() {
+        if cell.canMoveTo() {
             self.cell = cell
             self.moveToCell()
             return
@@ -110,5 +127,4 @@ extension LivingAsset : LivingAsset_Thinking{
             return
         }
     }
-    
 }

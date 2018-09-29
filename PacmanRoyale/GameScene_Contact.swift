@@ -36,24 +36,20 @@ extension GameScene : GameScene_Contact{
 //        case GameObjectType.tank1.categoryBitMask() | GameObjectType.mainHome.categoryBitMask(),
 //             GameObjectType.tank1.categoryBitMask() | GameObjectType.sideHome.categoryBitMask():
 //            self.mergeAssets(asset1: contact.bodyA.node as! Asset, asset2: contact.bodyB.node as! Asset)
-//        case GameObjectType.tank1.categoryBitMask() | GameObjectType.candy1.categoryBitMask(),
-//             GameObjectType.tank1.categoryBitMask() | GameObjectType.candy2.categoryBitMask(),
-//             GameObjectType.tank1.categoryBitMask() | GameObjectType.candy3.categoryBitMask(),
-//             GameObjectType.tank1.categoryBitMask() | GameObjectType.candy4.categoryBitMask(),
-//             GameObjectType.tank1.categoryBitMask() | GameObjectType.candy5.categoryBitMask():
-//            let asset : Asset?
-//            let object : CellObject?
-//            
-//            if contact.bodyA.node is Asset{
-//                asset = contact.bodyA.node as? Asset
-//                object = contact.bodyB.node as? CellObject
-//            }
-//            else{
-//                asset = contact.bodyB.node as? Asset
-//                object = contact.bodyA.node as? CellObject
-//            }
-//            
-//            self.collect(asset: asset!, cellObject: object!)
+        case GameObjectType.tank1.categoryBitMask() | GameObjectType.aidKit.categoryBitMask():
+            let asset : Asset?
+            let object : CellObject?
+            
+            if contact.bodyA.node is Asset{
+                asset = contact.bodyA.node as? Asset
+                object = contact.bodyB.node as? CellObject
+            }
+            else{
+                asset = contact.bodyB.node as? Asset
+                object = contact.bodyA.node as? CellObject
+            }
+            
+            self.collect(asset: asset!, cellObject: object!)
         case GameObjectType.tank1.categoryBitMask() | GameObjectType.cell.categoryBitMask():
             (contact.bodyA.node as! Cell).addContactingAsset(asset: (contact.bodyB.node as! Asset))
         default:
@@ -77,9 +73,9 @@ extension GameScene : GameScene_Contact{
         guard cellObject.removed == false else {
             return
         }
-        print(cellObject.type )
+        
         cellObject.removed = true
-        asset.collect(object: cellObject)
+        (asset as! LivingAsset).collect(collection: cellObject.collection)
         cellObject.cell.object = nil
         cellObject.removeFromParent()
     }

@@ -109,6 +109,13 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
         }
     }
     
+    func hide(isMine : Bool){
+        let thisLiving = self.living.filter({m in m.isMine == isMine})
+        for each in thisLiving{
+            each.fadeOut(duration: 1)
+        }
+    }
+    
     private func getCurrentEnemyBrain() -> Brain?{
         if let enemy = self.living.filter({m in m.isMine == false}).first {
             return enemy.brain
@@ -164,7 +171,6 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
             each.stop()
             each.popOut(duration: 1)
         }
-        self.createEnemyBrains()
     }
     
     func gameStart() {
@@ -175,16 +181,5 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
         
     }
     
-    func createEnemyBrains(){
-        guard self.teamStrength(isMine: true) > self.teamStrength(isMine: false) else {
-            return
-        }
-        
-        let myBrains = UserInfo.brains(isMine: true)
-        
-        for each in myBrains{
-            each.isMine = false
-            UserInfo.brain(brain: each)
-        }
-    }
+
 }

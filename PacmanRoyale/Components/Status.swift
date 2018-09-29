@@ -25,10 +25,22 @@ class Status {
     
     var state : Double{
         didSet{
-            
             if state > oldValue{
-                //print("increased")
+                self.statusBar.run(blinkLargerAction(speed: 2))
             }
+            else if state < oldValue{
+                self.statusBar.run(blinkSmallerAction(speed: 2))
+            }
+            
+            if state < 20{
+                self.statusBar.blink(speed: 4)
+            }
+            else{
+                if self.statusBar.isBlinking(){
+                    self.statusBar.stopBlink(speed: 4)
+                }
+            }
+            
             if state < minState{
                 state = minState
             }

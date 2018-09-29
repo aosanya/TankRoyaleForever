@@ -51,11 +51,20 @@ extension UserInfo : UserInfo_Brain  {
     
     static func brain(brain : Brain){
         var prevBrains = self.brains()
-        let toReplace = prevBrains.filter({m in m.isMine == brain.isMine && m.assetType == brain.assetType})
-        
-        for each in toReplace{
-            prevBrains = prevBrains.filter({m in m.id != each.id})
+        if brain.isMine == true{
+            let toReplace = prevBrains.filter({m in m.isMine == brain.isMine && m.assetType == brain.assetType})
+            for each in toReplace{
+                prevBrains = prevBrains.filter({m in m.id != each.id})
+            }
         }
+        else{
+            let level = round(value: brain.level, point: 100)
+            let toReplace = prevBrains.filter({m in m.isMine == brain.isMine && m.assetType == brain.assetType && round(value: m.level, point: 100) == level})
+            for each in toReplace{
+                prevBrains = prevBrains.filter({m in m.id != each.id})
+            }
+        }
+
         self.brains(brains: prevBrains)
         self.addBrain(brain: brain)
     }

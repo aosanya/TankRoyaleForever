@@ -11,13 +11,12 @@ import SpriteKit
 enum GameObjectType : UInt{
     case tank1 = 1
     case shot = 2
+    case aidKit = 3
     case cell = 9
     
     func categoryBitMask() -> UInt32{
         return 1 << self.rawValue
     }
-    
-
     
     func contactTestBitMask() -> UInt32{
         switch self {
@@ -27,6 +26,19 @@ enum GameObjectType : UInt{
             return GameObjectType.tank1.categoryBitMask()
         case .cell:
             return GameObjectType.tank1.categoryBitMask()
+        case .aidKit:
+            return GameObjectType.tank1.categoryBitMask()
+        }
+    }
+    
+    func hasLabel() -> Bool{
+        switch self {
+            case .tank1:
+                return false
+            case .cell:
+                return false
+            case .shot, .aidKit:
+                return false
         }
     }
     
@@ -36,11 +48,10 @@ enum GameObjectType : UInt{
             return CGPoint(x: 0, y: -15)
         case .cell:
             return CGPoint(x: 0, y: -8)
-        case .shot:
+        case .shot, .aidKit:
             return nil
         }
     }
-   
 
     func image() -> UIImage{
         switch self {
@@ -50,6 +61,8 @@ enum GameObjectType : UInt{
             return #imageLiteral(resourceName: "redBullet")
         case .cell:
             return #imageLiteral(resourceName: "WhiteCellDotted")
+        case .aidKit:
+            return #imageLiteral(resourceName: "AidKit")
         }
     }
     
@@ -62,13 +75,17 @@ enum GameObjectType : UInt{
             return CGSize(width: 20, height: 30)
         case .cell:
             return nil
+        case .aidKit:
+            return CGSize(width: 0.5, height: 0.5)
         }
     }
     
-    func points() -> Int{
+    func collection() -> Double{
         switch  self {
-       default:
-            return 0
+            case .aidKit:
+                return 50
+            case .cell, .shot, .tank1:
+                return 0
         }
     }
     
@@ -89,7 +106,6 @@ enum GameObjectType : UInt{
             return CGPoint(x: 0, y: -0.7)
         }
     }
-    
 }
 
 protocol GameObjectDelegate {
@@ -100,7 +116,7 @@ class GameObject : SKSpriteNode{
     var id : UInt = 0
     var type : GameObjectType
     
-    private var _cell : Cell!
+    var _cell : Cell!
     private var _prevCell : Cell?
     
     var cell : Cell{
@@ -112,7 +128,7 @@ class GameObject : SKSpriteNode{
                 if self is Asset{
                     _cell!.prevAsset = self
                     _cell!.asset!.prevCell = _cell!
-                    _cell!.asset = nil
+                    _cell!.removeAsset()
                 }
                 if self is CellObject{
                     _cell!.object = self
@@ -121,12 +137,16 @@ class GameObject : SKSpriteNode{
                 }
             }
             if self is Asset{
-                newValue.asset = self
+                newValue.addAsset(asset: self)
             }
             if self is CellObject{
                 newValue.object = self
             }
             _cell = newValue
+            
+            if _prevCell != nil{
+                _prevCell!.addPointer()
+            }
         }
     }
     
@@ -140,6 +160,11 @@ class GameObject : SKSpriteNode{
                     _prevCell!.prevAsset = nil
                 }
             }
+            
+            if _prevCell != nil{
+                _prevCell!.removePointer()
+            }
+            
             _prevCell = newValue
         }
     }        
@@ -172,14 +197,20 @@ class GameObject : SKSpriteNode{
         }
     }
     
+    var collection : Double{
+        get{
+            return self.type.collection()
+        }
+    }
+    
     init(cell : Cell, texture: SKTexture?, color: UIColor, size: CGSize, objectType : GameObjectType) {       
         self.type = objectType
-        self.strength = objectType.points()
-        
+        self.strength = 0
         super.init(texture: texture, color: color, size: size)
         self.cell = cell
         self.addLabel()
         self.updateText()
+        self.zPosition = 150
     }
     
     //Living
@@ -197,7 +228,7 @@ class GameObject : SKSpriteNode{
         self.physicsBody?.allowsRotation = false
         self.addLabel()
         self.updateText()
-        
+        self.zPosition = 200
         
     }
     
@@ -205,8 +236,7 @@ class GameObject : SKSpriteNode{
     
     init(cell : Cell, objectType : GameObjectType, size : CGSize) {
         self.type = objectType
-        
-        self.strength = objectType.points()
+        self.strength = 0
         super.init(texture: SKTexture(image: objectType.image()), color: UIColor.clear, size: size)
         self.cell = cell
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
@@ -215,8 +245,11 @@ class GameObject : SKSpriteNode{
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.isDynamic = true
         self.physicsBody?.allowsRotation = false
-        self.addLabel()
-        self.updateText()
+        if objectType.hasLabel() {
+            self.addLabel()
+            self.updateText()
+        }
+        self.zPosition = 150
     }
     
     required init?(coder aDecoder: NSCoder) {

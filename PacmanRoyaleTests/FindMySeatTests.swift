@@ -336,6 +336,38 @@ class PacmanRoyaleTests: XCTestCase {
         assert(frontCell!.pos.col == 1)
     }
     
+    
+    func testGetEnemyCell(){
+        cells = Cells(area: CGRect(x: 0, y: 0, width: 150, height: 150), rows: 3, cols: 3, delegate: nil)
+        
+        var id : Int = 0
+        for row in 0...2{
+            for col in 0...2{
+                let cell = Cell(id: id, size: CGSize(width: 50, height: 50), row: row, col: col)
+                cell.position = CGPoint(x: row, y: col)
+                cells.set.append(cell)
+                id += 1
+            }
+        }
+        
+        let assetCell = cells.getCell(row : 1, col : 1)
+        let assetEnemyCell = cells.getCell(row : 0, col : 1)
+        
+        let asset = LivingAsset(id: 1, assetType: AssetType.tank1, cell: assetCell!, isMine: true, strength: 1)
+        asset.zRotation = angleToRadians(angle: 270)
+        _ = LivingAsset(id: 1, assetType: AssetType.tank1, cell: assetEnemyCell!, isMine: false, strength: 1)
+        
+        let state = assetEnemyCell?.relativeState(requestingAsset: asset, radius: 1)
+        
+        assert(state! | StateTypes.hasEnemyAsset.mask() == state!)
+        let frontCell = asset.getEnemyCell()
+        assert(frontCell!.pos.row == assetEnemyCell!.pos.row)
+        assert(frontCell!.pos.col == assetEnemyCell!.pos.col)
+        
+    }
+    
+    
+    
 //    func testRotatational(){
 //        cells = Cells(area: CGRect(x: 0, y: 0, width: 150, height: 150), rows: 3, cols: 3, delegate: nil)
 //

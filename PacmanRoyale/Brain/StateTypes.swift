@@ -9,7 +9,7 @@
 import SpriteKit
 
 enum StateTypes : UInt{
-    case hasCandy = 1
+    case hasAidKit = 1
     case hasCandy1 = 2
     case hasCandy2 = 3
     case hasCandy3 = 4
@@ -20,7 +20,9 @@ enum StateTypes : UInt{
     case hasMainHome = 9
     case hasSideHome = 10
     case hasTank = 11
+    
 
+    
     
     case hasMyAsset = 15
     case hasEnemyAsset = 16
@@ -39,7 +41,13 @@ enum StateTypes : UInt{
     case is315Degrees = 29
     case isCreatingEnemy = 30
     case isCreatingMine = 31
+    case assetIsMoving = 32
+    case assetIsShooting = 33
     
+    case hasLifeLessThan25 = 34
+    case hasLifeGreaterThan25 = 35
+    case hasLifeGreaterThan50 = 36
+    case hasLifeGreaterThan75 = 37
     
     func mask() -> UInt{
         return 1 << self.rawValue

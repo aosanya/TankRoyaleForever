@@ -17,12 +17,14 @@ protocol LivingAssetDelegate {
 class LivingAsset : Asset, StateDelegate{
     private var status : Status!
     var livingAssetDelegates = [LivingAssetDelegate]()
-    
+    var relativeState : States = States(set: Set<State>())
     var brain : Brain!{
         didSet{
             self.brain.describe(info: "New Brain")
         }
     }
+    
+    var initialized : Bool = false
     
     var state : Double{
         set {
@@ -37,20 +39,13 @@ class LivingAsset : Asset, StateDelegate{
     
     var moveSpeed : Double{
         get{
-            return self.assetType.speed() * self.status.percentageStatus / 100
+            let speedStatus = Double(convertRange(0, fromMax: 100, toMin: 0.5, toMax: 1, convertVal: Float(self.status.percentageStatus)))
+            return self.assetType.speed() * speedStatus
         }
     }
-    internal var isMakingDecision : Bool = false
-    var nextCell : Cell? = nil
     
-//    override var cell : Cell{
-//        get {
-//            return super.cell
-//        }
-//        set {
-//            super.cell = newValue
-//        }
-//    }
+    internal var isMakingDecision : Bool = false
+    var nextCell : Cell? = nil    
     
     var forwardDirection : CGFloat{
         get{
@@ -68,8 +63,7 @@ class LivingAsset : Asset, StateDelegate{
     
     var remainingStrength : Double{
         get{
-            print((self.status.percentageStatus / 100)  * self.assetType.durability())
-            return (self.status.percentageStatus / 100)  * self.assetType.durability()
+             return (self.status.percentageStatus / 100)  * self.assetType.durability()
         }
     }
     
@@ -77,12 +71,14 @@ class LivingAsset : Asset, StateDelegate{
         super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
         self.brain = getBrain()
         self.initialize()
+        
     }
 
     init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int, brain : Brain?){
         super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
         self.brain = brain !== nil ? brain : getBrain()
         self.initialize()
+        
     }
 
     func initialize(){
@@ -92,6 +88,8 @@ class LivingAsset : Asset, StateDelegate{
         self.addStatusBar()
         self.startThinking(interval: self.thinkSpeed())
         self.startConsumption()
+        self.initialized = true
+        self.updateRelativeState(radius: 1, includingSelf: false)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -113,22 +111,27 @@ class LivingAsset : Asset, StateDelegate{
     }
     
     private func getEnemyBrain() -> Brain{
-        let brains = UserInfo.brains().filter({m in m.isMine == false && m.assetType == self.assetType.rawValue})
+        
+        var brains = UserInfo.brains().filter({m in m.isMine == false && m.assetType == self.assetType.rawValue})
         let level = UserInfo.getLevel()
         var betterCandidates = brains.filter({m in m.level >= level}).sorted(by: {$0.level < $1.level})
         
-        guard betterCandidates.count > 0 else {
-            let brains2 = UserInfo.brains()
-            
-            if let brain = UserInfo.brain(isMine : true, assetType: self.assetType.rawValue){
-                brain.isMine = false
-                UserInfo.brain(brain: brain)
+        
+        guard betterCandidates.count == 0 else {
+            return betterCandidates[0]
+        }        
+        
+        if let myBrain = UserInfo.brain(isMine : true, assetType: self.assetType.rawValue){
+            if myBrain.level >= level{
+                myBrain.isMine = false
+                UserInfo.brain(brain: myBrain)
                 return getEnemyBrain()
             }
-            return Brain(isMine: isMine, assetType: self.assetType.rawValue, level: 1)
         }
         
-        return betterCandidates[0]
+        UserInfo.brain(brain: Brain(isMine: isMine, assetType: self.assetType.rawValue, level: 1))
+        brains = UserInfo.brains().filter({m in m.isMine == false && m.assetType == self.assetType.rawValue})
+        return brains.first!
     }
     
     func shouldShoot() -> Bool{
@@ -140,6 +143,10 @@ class LivingAsset : Asset, StateDelegate{
         
         let assetState = frontCell!.assetState(requestingAsset: self)
         
+        if assetState | StateTypes.assetIsMoving.mask() == assetState{
+            return false
+        }
+        
         if assetState | StateTypes.hasEnemyAsset.mask() == assetState{
             return true
         }
@@ -148,6 +155,9 @@ class LivingAsset : Asset, StateDelegate{
     }
     
     func frontCell() -> Cell?{
+        guard self._cell != nil else {
+            return nil
+        }
         let extrapolation = extrapolatePointUsingAngle(CGPoint.zero, direction: self.forwardDirection, byVal: 1)
         let targetRow = Int(round(extrapolation.y)) + self.cell.pos.row
         let targetCol = Int(round(extrapolation.x)) + self.cell.pos.col
@@ -183,8 +193,6 @@ class LivingAsset : Asset, StateDelegate{
         return false
     }
     
-    
-    
     func isPerformingAction() -> Bool{
         guard action(forKey: "moving") == nil else {
             return true
@@ -205,10 +213,10 @@ class LivingAsset : Asset, StateDelegate{
     }
     
     private func startConsumption(){
-//        let consume = SKAction.run({() in self.consume()})
-//        let sequence = SKAction.sequence([SKAction.wait(forDuration: 0.5), consume])
-//        let repeatForever = SKAction.repeatForever(sequence)
-//        self.run(repeatForever, withKey : "consume")
+        let consume = SKAction.run({() in self.consume()})
+        let sequence = SKAction.sequence([SKAction.wait(forDuration: 0.5), consume])
+        let repeatForever = SKAction.repeatForever(sequence)
+        self.run(repeatForever, withKey : "consume")
     }
     
     private func consume(){
@@ -300,9 +308,10 @@ class LivingAsset : Asset, StateDelegate{
         self.removeAllActions()
         self.removeAllChildren()
         self.physicsBody = nil
-        self.cell.asset = nil
+        self.cell.removeAsset()
         self.cell.object = nil
         self.nextCell = nil
+        self.prevCell = nil
         self.fadeOut(duration: 0.1, callBack: self.remove)
         
     }
@@ -317,5 +326,13 @@ class LivingAsset : Asset, StateDelegate{
     
     private func reduceLife(reduction : Double){
          self.state -= reduction / self.assetType.durability()
+    }
+    
+    func collect(collection : Double){
+        self.state += collection
+    }
+    
+    func stopAllActions(){
+        self.removeAllActions()
     }
 }

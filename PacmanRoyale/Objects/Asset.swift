@@ -72,6 +72,7 @@ class Asset : GameObject{
         self.assetType = assetType
         self.isMine = isMine
         super.init(id : id,cell : cell, assetType : self.assetType, strength : strength)
+        
         self.position = self.cell.position
         self.zPosition = self.cell.zPosition + 10
         self.colorTeam()
@@ -130,14 +131,9 @@ class Asset : GameObject{
         }
     }
     
-    func collect(object : GameObject){
-        self.strength += object.type.points()
-    }
+    
     
 
-    func relativeState(radius : Int, includingSelf : Bool) -> States{
-        return cells.relativeCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)
-    }
     
 //    func staticState(radius : Int, includingSelf : Bool) -> States{
 //        return cells.staticCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)

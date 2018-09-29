@@ -20,11 +20,13 @@ class Decision : Hashable , Codable{
         return lhs.states == rhs.states
     }
     
+    var index : UInt
     var states : States
     var preferredState : UInt
     
-    init(states : States, preferredState : UInt){
+    init(index : UInt, states : States, preferredState : UInt){
         self.hashValue = states.hashValue
+        self.index = index
         self.states = states
         self.preferredState = preferredState
     }

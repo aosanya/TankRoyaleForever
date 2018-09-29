@@ -20,16 +20,51 @@ class GameOverControl: SKNode {
     var points : SKNode = SKNode()
     var delegate : GameOverDelegate?
     var scoreChange : Double
-    var Iwin : Bool
+    
+    var Iwin : Bool{
+        get{
+           return self.scoreChange > 0
+        }
+    }
+    
+    var ILose : Bool{
+        get{
+            return self.scoreChange < 0
+        }
+    }
+    
+    
     
     init(pointsChange : Double) {
         self.scoreChange = pointsChange * 0.1
-        self.Iwin = pointsChange > 0
         super.init()
         self.normalizeScoreChange()
         UserInfo.changeScore(change: self.scoreChange)
+        self.changeBrainLevel()
+        
+        if self.Iwin {
+            self.createEnemyBrains()
+        }
         self.addLabels()
         self.schedulePlayButton()
+    }
+    
+    func changeBrainLevel(){
+        let myBrains = UserInfo.brains(isMine: true)
+        let level = UserInfo.getLevel()
+        for each in myBrains{
+            each.level = level
+            UserInfo.brain(brain: each)
+        }
+    }
+    
+    func createEnemyBrains(){
+        let myBrains = UserInfo.brains(isMine: true)
+        for each in myBrains{
+            each.changeId()
+            each.isMine = false
+            UserInfo.brain(brain: each)
+        }
     }
     
     func normalizeScoreChange(){
@@ -65,15 +100,18 @@ class GameOverControl: SKNode {
         if self.Iwin == true{
             self.lblGameOver.text = "You win"
         }
-        else{
+        else if ILose == true{
             self.lblGameOver.text = "You Lose"
+        }
+        else {
+            self.lblGameOver.text = "A Draw!"
         }
         self.lblGameOver.popOut(duration: 1, callBack: addPointsLabel)
         
     }
     
-    private func addPointsLabel(){
-        self.lblPoints = SKLabelNode(text: "Next Level : \(UserInfo.getLevel())")
+    private func addPointsLabel(){        
+        self.lblPoints = SKLabelNode(text: "Next Level : \(round(value: UserInfo.getLevel(), point: 100))")
         self.lblPoints.fontName = "ChalkboardSE-Regular"
         self.lblPoints.fontColor = UIColor(red: 46/255, green: 46/255, blue: 46/255, alpha: 1)
         self.lblPoints.fontSize = 30

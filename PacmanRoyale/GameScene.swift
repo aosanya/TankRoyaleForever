@@ -25,6 +25,9 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var selectedCells : [Cell] = [Cell]()
     var greenScore : Score!
     var redScore : Score!
+    var timer : Label!
+    var timerLabel : Label!
+    var timeLeft : Int = 176
     var newAssetStrength : Int = 1
     var lblLevel : SKLabelNode!
     var redAssetCreationInterval : Double = 5
@@ -41,7 +44,6 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     
     var gameOver : Bool = false{
         didSet{
-            
             if gameOver == true && oldValue == false{
                 self.loadGameOver()
             }
@@ -59,7 +61,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var delegates : [GameSceneDelegate] = [GameSceneDelegate]()
     
     override func didMove(to view: SKView) {
-       // UserDefaults.standard.removeObject(forKey: "brains")
+        //UserDefaults.standard.removeObject(forKey: "brains")
         //UserDefaults.standard.removeObject(forKey: "score")
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
         self.physicsWorld.contactDelegate = self
@@ -69,7 +71,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.loadResources()
         self.loadAssets()
         //self.showGameOver()
-        self.startResourceGeneration(interval: 2)
+        self.startResourceGeneration(interval: 5)
     }
 
     func deInitialize(){
@@ -85,6 +87,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.gameOverControl = nil
         self.redScore = nil
         self.greenScore = nil
+        self.timer = nil
+        self.timerLabel = nil
         self.children
             .forEach {
                 $0.removeAllActions()
@@ -103,7 +107,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func loadLevel(){
-        self.lblLevel = SKLabelNode(text: "Level \(UserInfo.getLevel())")
+        self.lblLevel = SKLabelNode(text: "Level \(round(value: UserInfo.getLevel(), point: 100))")
         self.lblLevel.fontName = "ChalkboardSE-Regular"
         self.lblLevel.fontColor = UIColor(red: 46/255, green: 46/255, blue: 46/255, alpha: 1)
         self.lblLevel.position = CGPoint(x: 0, y: self.topMenu.calculateAccumulatedFrame().minY - 50)
@@ -112,19 +116,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.addChild(self.lblLevel!)
     }
     
-    func addTopMenu(){
-        topMenu = TopBar(size : CGSize(width: self.frame.width, height: 100))
-        topMenu.position = CGPoint(x: 0, y: self.frame.maxY - 50)
-        self.addChild(topMenu)
-        
-        greenScore = Score(image: #imageLiteral(resourceName: "Tank1"), isMine: true)
-        greenScore.position = CGPoint(x: -200 , y: 0)
-        topMenu.addChild(greenScore)
-        
-        redScore = Score(image: #imageLiteral(resourceName: "Tank1"), isMine: false)
-        redScore.position = CGPoint(x: 100 , y: 0)
-        topMenu.addChild(redScore)
-    }
+
     
     func loadCells(){
         self.cellsNode = SKNode()
@@ -190,8 +182,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func loadResources(){
-//        cells.abundance.add(ResourceAbundance(type: .candy1, abundance: 10, maxPerTime: 5))
-//        cells.abundance.add(ResourceAbundance(type: .candy2, abundance: 10, maxPerTime: 4))
+        cells.abundance.add(ResourceAbundance(type: .aidKit, abundance: 10, maxPerTime: 3))
 //        cells.abundance.add(ResourceAbundance(type: .candy3, abundance: 10, maxPerTime: 3))
 //        cells.abundance.add(ResourceAbundance(type: .candy4, abundance: 10, maxPerTime: 2))
 //        cells.abundance.add(ResourceAbundance(type: .candy5, abundance: 10, maxPerTime: 1))
@@ -211,7 +202,15 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.run(SKAction.repeatForever(sequence), withKey : "createResources")
     }
     
+    func stopResourceGeneration(){
+        self.removeAction(forKey: "createResources")
+    }
+    
     func triggerCreatingAssets(isMine : Bool){
+        guard self.gameOver == false else {
+            return
+        }
+        
         guard cells.canCreateAsset(isMine:  isMine) == true else {
             return
         }
@@ -270,6 +269,9 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func createAsset(cell: Cell, isMine: Bool) {
+        guard  gameOver == false else {
+            return
+        }
  //       if let upgradeCandidate = cell.contactingAssets.filter({m in m.isMine == isMine}).first{
 //            if upgradeCandidate.isMine == isMine {
 //                upgradeCandidate.strength += newAssetStrength
@@ -358,6 +360,9 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         thisShot.run(sequence)
         thisShot.zPosition = livingAsset.zPosition + 1
     }
+    
+    
+  
     
     func dead(livingAsset: LivingAsset) {
         let isMine = livingAsset.isMine

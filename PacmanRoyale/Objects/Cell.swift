@@ -55,8 +55,6 @@ struct CellPos : Hashable{
 }
 
 class Cell : SKSpriteNode, LivingAssetDelegate{
-    
-    
     var id : Int
     var pos : CellPos
     var isCreatingAsset : Bool = false{
@@ -69,7 +67,6 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     }
     
     var isReadyToCreatAsset : Bool = false
-    
     var isRedHomeCell : Bool = false
     var isGreenHomeCell : Bool = false
     var label : SKLabelNode!
@@ -78,11 +75,31 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     var object : GameObject?{
         didSet{
             if object != oldValue{
-                delegate!.objectChanged(cell: self)
+                if delegate != nil {
+                    delegate!.objectChanged(cell: self)
+                }
             }
         }
     }
     var stars : StatusIndicator?
+    
+//    var asset : GameObject?{
+//        didSet{
+//            if asset != oldValue{
+//                if delegate != nil{
+//                    delegate!.assetChanged(cell: self)
+//                }
+//                self.setColor()
+//            }
+//            if asset != nil && asset is LivingAsset {
+//                (asset as! LivingAsset).livingAssetDelegates.append(self)
+//            }
+//        }
+//    }
+    
+    var pointer : SKSpriteNode!
+    
+    var selectionPointer : SKSpriteNode!
     
     var asset : GameObject?{
         didSet{
@@ -95,7 +112,33 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
             if asset != nil && asset is LivingAsset {
                 (asset as! LivingAsset).livingAssetDelegates.append(self)
             }
+        
         }
+    }
+    
+    var assets = [GameObject]()
+    
+    func addAsset(asset : GameObject){
+        let exists = assets.filter({m in m.id == asset.id}).count > 0
+        
+        guard assets.count == 0 else {
+            return
+        }
+        guard exists == false else {
+            return
+        }
+        
+        assets.append(asset)
+        self.asset = asset
+    }
+    
+    func removeAsset(){
+        guard self.asset != nil else {
+            return
+        }
+        
+        self.assets = assets.filter({m in m.id != self.asset!.id})
+        self.asset = nil
     }
     
     var prevAsset : GameObject?{
@@ -138,8 +181,6 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         self.physicsBody?.isDynamic = false
         self.physicsBody?.allowsRotation = false
         //self.text("\(self.id)")
-        
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -149,8 +190,10 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     func deInitialize(){
         self.delegate = nil
         self.label.removeAllChildren()
-        self.asset = nil
+        self.removeAsset()
         self.object = nil
+        self.pointer = nil
+        self.selectionPointer = nil
     }
     
     func addContactingAsset(asset : Asset){
@@ -195,17 +238,39 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     }
     
     func isEmpty() -> Bool{
-        if self.asset != nil || self.object != nil{
+        guard self.asset == nil else {
             return false
         }
-        if self.isCreatingAsset == true{
+
+        guard self.object == nil else {
             return false
         }
-        if self.prevAsset != nil {
+        
+        guard self.isCreatingAsset == false else{
+            return false
+        }
+        
+        guard self.prevAsset == nil else {
             return false
         }
         return true
     }
+    
+    func canMoveTo() -> Bool{
+        guard self.asset == nil else {
+            return false
+        }
+        
+        guard self.isCreatingAsset == false else{
+            return false
+        }
+        
+        guard self.prevAsset == nil else {
+            return false
+        }
+        return true
+    }
+    
     
     func addObject(type : GameObjectType) {
         self.object = CellObject(cell : self, objectType: type, size: CGSize(width: self.size.width * type.size()!.width, height: self.size.height * type.size()!.height))
@@ -221,7 +286,65 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         self.stars!.position  = CGPoint(x: 0, y: self.object!.frame.maxY + self.stars!.size.height * 0.3)
     }
     
-  
+    func addPointer() {
+        let angle = CGFloat(getRadAngle(self.position, pointB: self.prevAsset!.cell.position))
+        let length = getDistance(self.position, pointB: self.prevAsset!.cell.position)
+        
+        self.removePointer()
+        self.removeSelectionPointer()
+        self.pointer = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "WhiteArrow")), color: UIColor.clear, size: CGSize(width : length, height : self.size.width * 0.25))
+        let pos = extrapolatePointUsingAngle(self.pointer.position, direction: angle, byVal: length / 2)
+        self.pointer.position = pos
+        self.pointer.zPosition = 1
+        
+        self.pointer.zRotation = angle
+        
+        if (self.prevAsset as! Asset).isMine {
+            self.pointer.color = UIColor.green
+        }
+        else{
+            self.pointer.color = UIColor.red
+        }
+        self.pointer.colorBlendFactor = 1
+        
+        self.addChild(self.pointer)
+    }
+    
+    func removePointer(){
+        if self.pointer != nil{
+            self.pointer.removeFromParent()
+        }
+    }
+    
+    func addSelectionPointer(from : Cell, isMine : Bool) {
+        let angle = CGFloat(getRadAngle(self.position, pointB: from.position))
+        //angle = angleToRadians(angle: radiansToAngle(angle) + 180)
+        let length = getDistance(self.position, pointB: from.position)
+        
+        self.removeSelectionPointer()
+        self.selectionPointer = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "WhiteArrow")), color: UIColor.clear, size: CGSize(width : length, height : self.size.width * 0.15))
+        let pos = extrapolatePointUsingAngle(self.selectionPointer.position, direction: angle, byVal: length / 2)
+        self.selectionPointer.position = pos
+        self.selectionPointer.zPosition = 1
+        
+        self.selectionPointer.zRotation = angle
+        
+        if isMine {
+            self.selectionPointer.color = UIColor.green
+        }
+        else{
+            self.selectionPointer.color = UIColor.red
+        }
+        self.selectionPointer.colorBlendFactor = 1
+        
+        self.addChild(self.selectionPointer)
+    }
+    
+    func removeSelectionPointer(){
+        if self.selectionPointer != nil{
+            self.selectionPointer.removeFromParent()
+        }
+    }
     
     func relativity(cell : Cell) -> (Int, Int){
         return (cell.pos.row - self.pos.row,  cell.pos.col - self.pos.col)
@@ -231,7 +354,8 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         if self.asset != nil{
             if self.asset! is LivingAsset{
                 let livingAsset = self.asset as! LivingAsset
-                livingAsset.think()
+                livingAsset.updateRelativeState(radius: 1, includingSelf: false)
+                livingAsset.autoThink()
             }
         }
     }
@@ -240,7 +364,8 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         if self.asset != nil{
             if self.asset! is LivingAsset{
                 let livingAsset = self.asset as! LivingAsset
-                livingAsset.think()
+                livingAsset.updateRelativeState(radius: 1, includingSelf: false)
+                livingAsset.autoThink()
             }
         }
     }    
@@ -251,7 +376,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     
     func dead(livingAsset: LivingAsset) {
         if asset != nil && asset!.id == livingAsset.id{
-            asset = nil
+            self.removeAsset()
         }
         if prevAsset != nil && prevAsset!.id == livingAsset.id{
             prevAsset = nil

@@ -25,9 +25,11 @@ extension LivingAsset : LivingAsset_Actions{
             return
         }
         
+        self.stopShooting()
+        
         var actions = [SKAction]()
         
-        let rotation = angleToFace(point: self.cell.position)
+        let rotation = rotationToFace(cell: self.cell)
         let turnDuration = Double(abs(rotation)) / Double(self.moveSpeed * 50)
         let turnAction = SKAction.rotate(byAngle: angleToRadians(angle: rotation), duration: turnDuration)
         actions.append(turnAction)
@@ -43,17 +45,17 @@ extension LivingAsset : LivingAsset_Actions{
         self.run(sequence, withKey : "moving")
     }
     
-    
     func turn(to : Cell){
         guard isPerformingAction() == false else {
             return
         }
         
+        self.stopShooting()
+        
         var actions = [SKAction]()
         
-        let facing = radiansToAngle(self.zRotation) + 270
-        let toFace = negativeAngleToPositive(angle: radiansToAngle(CGFloat(getRadAngle(self.position, pointB: to.position))))
-        let rotation = toFace - facing
+        let rotation = rotationToFace(cell: to)
+        
         let turnDuration = Double(abs(rotation)) / Double(self.moveSpeed * 50)
         let turnAction = SKAction.rotate(byAngle: angleToRadians(angle: rotation), duration: turnDuration)
         actions.append(turnAction)
@@ -65,6 +67,28 @@ extension LivingAsset : LivingAsset_Actions{
         self.run(sequence, withKey : "moving")
     }
     
-    
-    
+    func rotationToFace(cell : Cell) -> CGFloat{
+        let facing = radiansToAngle(self.zRotation) + 270
+        //let toFace = negativeAngleToPositive(angle: radiansToAngle(CGFloat(getRadAngle(self.position, pointB: to.position))))
+        
+        let toFace = radiansToAngle(CGFloat(getRadAngle(self.position, pointB: cell.position)))
+        
+        
+        var rotation = toFace - facing
+        var counterRotation = 0
+        
+        if rotation < 0{
+            counterRotation = 360 + Int(rotation)
+        }
+        
+        if rotation > 0{
+            counterRotation =  Int(rotation) - 360
+        }
+        
+        if abs(counterRotation) < abs(Int(rotation)) {
+            rotation = CGFloat(counterRotation)
+        }
+        
+        return rotation
+    }
 }

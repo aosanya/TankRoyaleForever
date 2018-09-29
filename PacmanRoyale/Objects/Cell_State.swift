@@ -17,25 +17,13 @@ extension Cell : Cell_State{
     private func objectState() -> UInt{
         var state : UInt = 0
         if self.object != nil{
-            //            if self.object!.type.isCandy(){
-            //                state = state | StateTypes.hasCandy.mask()
-            //                switch self.object!.type{
-            //                case .candy1:
-            //                    state = state | StateTypes.hasCandy1.mask()
-            //                case .candy2:
-            //                    state = state | StateTypes.hasCandy2.mask()
-            //                case .candy3:
-            //                    state = state | StateTypes.hasCandy3.mask()
-            //                case .candy4:
-            //                    state = state | StateTypes.hasCandy4.mask()
-            //                case .candy5:
-            //                    state = state | StateTypes.hasCandy5.mask()
-            //                case .tank1, .cell, .mainHome, .sideHome: ()
-            //
-            //                }
-            //            }
+            switch self.object!.type{
+                case .aidKit:
+                    state = state | StateTypes.hasAidKit.mask()
+                case .tank1, .cell, .shot: ()
+            }
         }
-        return 0
+        return state
     }
     
     func assetCreationState() -> UInt{
@@ -54,13 +42,17 @@ extension Cell : Cell_State{
         if self.asset != nil{
             let actualAsset = self.asset! as! Asset
             switch self.asset!.type{
-            case .tank1:
-                state =  state | StateTypes.hasTank.mask()
-            case .shot : ()
-            case .cell : ()
-                
+                case .tank1:
+                    state =  state | StateTypes.hasTank.mask()
+                case .shot : ()
+                case .cell : ()
+                case .aidKit : ()
             }
             
+            
+            if (self.asset as! LivingAsset).prevCell != nil {
+                state =  state | StateTypes.assetIsMoving.mask()
+            }
             //Team
             if actualAsset.isMine == requestingAsset.isMine{
                 state =  state | StateTypes.hasMyAsset.mask()
@@ -78,6 +70,24 @@ extension Cell : Cell_State{
             }
             else{// are equal
                 state =  state | StateTypes.hasEqualAsset.mask()
+            }
+            
+            //Life
+            if  let livingAsset = asset as? LivingAsset{
+                if livingAsset.initialized  {
+                    if livingAsset.state <= 25{
+                        state =  state | StateTypes.hasLifeLessThan25.mask()
+                    }
+                    else if livingAsset.state > 25{
+                        state =  state | StateTypes.hasLifeGreaterThan25.mask()
+                    }
+                    else if livingAsset.state > 50{
+                        state =  state | StateTypes.hasLifeGreaterThan50.mask()
+                    }
+                    else if livingAsset.state > 75{
+                        state =  state | StateTypes.hasLifeGreaterThan75.mask()
+                    }
+                }
             }
         }
         return state
@@ -129,12 +139,6 @@ extension Cell : Cell_State{
     }
     
     func relativeOrientation(requestingAsset : Asset) -> UInt{
-        
-        print("- - - - - - - - -")
-        print(requestingAsset.cell.position)
-        print(self.position)
-        print("- - - - - - - - -")
-        
         let direction = getRadAngle(requestingAsset.cell.position, pointB: self.position)
         var angleDirection = radiansToAngle(CGFloat(direction))
         
@@ -203,20 +207,18 @@ extension Cell : Cell_State{
     }
     
     func relativeState(requestingAsset : Asset, radius : Int) -> UInt{
-        return
-            self.relativeOrientation(requestingAsset:requestingAsset)
-//                |
-//                self.assetState(requestingAsset: requestingAsset) |
-//                self.proximityToHomeState(requestingAsset: requestingAsset)  |
-//                self.proximityToEnemyHomeState (requestingAsset: requestingAsset) |
-//                self.assetCreationState()
+       return
+            self.relativeOrientation(requestingAsset:requestingAsset) |
+            self.objectState() |
+            self.assetState(requestingAsset: requestingAsset) |
+            self.proximityToHomeState(requestingAsset: requestingAsset)  |
+            self.proximityToEnemyHomeState (requestingAsset: requestingAsset) |
+            self.assetCreationState()
     }
     
     //    func staticState(requestingAsset : Asset, radius : Int) -> UInt{
-    //
     //        return
     //            self.staticOrientation(requestingAsset:requestingAsset)
-    //
     //
     ////        return
     ////            self.staticOrientation(requestingAsset:requestingAsset) |
@@ -275,4 +277,6 @@ extension Cell : Cell_State{
         self.colorBlendFactor = 0
         
     }
+    
+
 }

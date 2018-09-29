@@ -60,7 +60,9 @@ extension GameScene : GameScene_UserInterface{
             //self.selectedAsset!.nextCell = self.selectedCells.first!
             self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].relativeState(requestingAsset: self.selectedAsset!, radius: 1))
             //Manual Decision
-            self.selectedAsset!.cellProposed(cell: self.selectedCells[0])
+            if self.selectedAsset!.isPerformingAction() == false{
+                self.selectedAsset!.cellProposed(cell: self.selectedCells[0])
+            }
             //
         }
         
@@ -80,9 +82,11 @@ extension GameScene : GameScene_UserInterface{
         if let _ = self.selectedCells.filter({m in m == cell}).first{
             return
         }
+        
         self.clearSelectedCells()
         cell.actionstate = CellState.selected
         self.selectedCells.append(cell)
+        self.selectedAsset!.cell.addSelectionPointer(from: cell, isMine: self.selectedAsset!.isMine)
     }
     
     func removeCells(cell : Cell){
@@ -103,6 +107,11 @@ extension GameScene : GameScene_UserInterface{
         guard self.selectedCells.count > 0 else {
             return
         }
+        
+        if selectedAsset != nil{
+            self.selectedAsset!.cell.removeSelectionPointer()
+        }
+        
         for each in self.selectedCells{
             each.actionstate = CellState.empty
         }
@@ -110,7 +119,8 @@ extension GameScene : GameScene_UserInterface{
     }
     
     func addMoveDecision(asset : Asset, preferredState : UInt){
-        (asset as! LivingAsset).brain.addDecisions(states: asset.relativeState(radius: 1, includingSelf: false), preferredState: preferredState)
+        let lAsset = asset as! LivingAsset
+        lAsset.brain.addDecisions(states: lAsset.relativeState, preferredState: preferredState)
         UserInfo.brain(brain: (asset as! LivingAsset).brain)
         self.assets.propagateBrain(asset: asset)
     }

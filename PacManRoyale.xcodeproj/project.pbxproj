@@ -71,6 +71,14 @@
 		EA9B193F20FF9A0B00BA6EDC /* StateTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B193D20FF9A0B00BA6EDC /* StateTypes.swift */; };
 		EAA356EF21511804009FC972 /* Cell_State.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356EE21511804009FC972 /* Cell_State.swift */; };
 		EAA356F0215201CA009FC972 /* Cell_State.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356EE21511804009FC972 /* Cell_State.swift */; };
+		EAA356F52159E2B6009FC972 /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356F42159E2B5009FC972 /* Label.swift */; };
+		EAA356F62159E2B6009FC972 /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356F42159E2B5009FC972 /* Label.swift */; };
+		EAA356F82159E37D009FC972 /* fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356F72159E37D009FC972 /* fonts.swift */; };
+		EAA356F92159E37D009FC972 /* fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356F72159E37D009FC972 /* fonts.swift */; };
+		EAA356FB2159E873009FC972 /* GameScene_TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FA2159E873009FC972 /* GameScene_TopBar.swift */; };
+		EAA356FC2159E873009FC972 /* GameScene_TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FA2159E873009FC972 /* GameScene_TopBar.swift */; };
+		EAA356FE215B2B8E009FC972 /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FD215B2B8D009FC972 /* Actions.swift */; };
+		EAA356FF215B2B8E009FC972 /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FD215B2B8D009FC972 /* Actions.swift */; };
 		EAD239AB21022A6100CCD8B2 /* TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AA21022A6100CCD8B2 /* TopBar.swift */; };
 		EAD239AF21022FD400CCD8B2 /* SKSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */; };
 		EAD239B021022FD400CCD8B2 /* SKSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */; };
@@ -158,6 +166,10 @@
 		EA9703CA20DED9CD00F392E4 /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
 		EA9B193D20FF9A0B00BA6EDC /* StateTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateTypes.swift; sourceTree = "<group>"; };
 		EAA356EE21511804009FC972 /* Cell_State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell_State.swift; sourceTree = "<group>"; };
+		EAA356F42159E2B5009FC972 /* Label.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
+		EAA356F72159E37D009FC972 /* fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fonts.swift; sourceTree = "<group>"; };
+		EAA356FA2159E873009FC972 /* GameScene_TopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene_TopBar.swift; sourceTree = "<group>"; };
+		EAA356FD215B2B8D009FC972 /* Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Actions.swift; sourceTree = "<group>"; };
 		EAD239AA21022A6100CCD8B2 /* TopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBar.swift; sourceTree = "<group>"; };
 		EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SKSpriteNode.swift; sourceTree = "<group>"; };
 		EAD239B12102306C00CCD8B2 /* CGPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPoint.swift; sourceTree = "<group>"; };
@@ -244,6 +256,7 @@
 				EAE7F10121058A680033E2A9 /* GameScene_Contact.swift */,
 				EAE7F10A210AC9E50033E2A9 /* GameScene_GameState.swift */,
 				EAE7F0FF210589530033E2A9 /* GameScene_UserInterface.swift */,
+				EAA356FA2159E873009FC972 /* GameScene_TopBar.swift */,
 				EA46593320DC36EC006A4C92 /* GameScene.sks */,
 				EA46593720DC36EC006A4C92 /* GameScene.swift */,
 				EA46593920DC36EC006A4C92 /* GameViewController.swift */,
@@ -311,9 +324,11 @@
 			children = (
 				EA9703C820DED23B00F392E4 /* global.swift */,
 				EA2EDD6220E4189F00BAACA2 /* UserInfo.swift */,
+				EAA356F72159E37D009FC972 /* fonts.swift */,
 				EA2EDD6520E54ECB00BAACA2 /* UserInfo_Brain.swift */,
 				EA0D74782101346F00E1397E /* StatusIndicator.swift */,
 				EAE7F107210A415C0033E2A9 /* GameOverControl.swift */,
+				EAA356FD215B2B8D009FC972 /* Actions.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -324,6 +339,7 @@
 				EAD239AA21022A6100CCD8B2 /* TopBar.swift */,
 				EAD239B42102320300CCD8B2 /* Score.swift */,
 				EA6411EB2144CBE4009FB9D6 /* Button.swift */,
+				EAA356F42159E2B5009FC972 /* Label.swift */,
 			);
 			path = Menu;
 			sourceTree = "<group>";
@@ -476,6 +492,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAA356FB2159E873009FC972 /* GameScene_TopBar.swift in Sources */,
 				EA6411E82140D92C009FB9D6 /* Status.swift in Sources */,
 				EA9703C920DED23B00F392E4 /* global.swift in Sources */,
 				EA9703C620DEC30F00F392E4 /* Asset.swift in Sources */,
@@ -490,6 +507,7 @@
 				EAE7F105210828690033E2A9 /* Cell_AssetCreation.swift in Sources */,
 				EA2EDD6620E54ECB00BAACA2 /* UserInfo_Brain.swift in Sources */,
 				EA8142F521462693003FCA50 /* LivingAsset_Actions.swift in Sources */,
+				EAA356FE215B2B8E009FC972 /* Actions.swift in Sources */,
 				EA46596720DC3A3D006A4C92 /* Cell.swift in Sources */,
 				EA6411E42140D40E009FB9D6 /* StatusDisplay.swift in Sources */,
 				EAE7F100210589530033E2A9 /* GameScene_UserInterface.swift in Sources */,
@@ -498,10 +516,12 @@
 				EA46593A20DC36EC006A4C92 /* GameViewController.swift in Sources */,
 				EA2EDD5D20E3552500BAACA2 /* States.swift in Sources */,
 				EAE7F10B210AC9E50033E2A9 /* GameScene_GameState.swift in Sources */,
+				EAA356F82159E37D009FC972 /* fonts.swift in Sources */,
 				EAD239BB21023C0B00CCD8B2 /* NonLivingAssets.swift in Sources */,
 				EAE7F10221058A680033E2A9 /* GameScene_Contact.swift in Sources */,
 				EAE7F108210A415C0033E2A9 /* GameOverControl.swift in Sources */,
 				EA3BE8F720FBDD1C0025B39E /* Resources.swift in Sources */,
+				EAA356F52159E2B6009FC972 /* Label.swift in Sources */,
 				EA3BE8F920FBEA530025B39E /* CellObject.swift in Sources */,
 				EA2EDD6320E4189F00BAACA2 /* UserInfo.swift in Sources */,
 				EAD239AB21022A6100CCD8B2 /* TopBar.swift in Sources */,
@@ -529,11 +549,13 @@
 				EA161E5920E26AAD0037AEFB /* global.swift in Sources */,
 				EA9B193F20FF9A0B00BA6EDC /* StateTypes.swift in Sources */,
 				EA161E5A20E26AB20037AEFB /* Cells.swift in Sources */,
+				EAA356FF215B2B8E009FC972 /* Actions.swift in Sources */,
 				EA46594D20DC36F0006A4C92 /* FindMySeatTests.swift in Sources */,
 				EA6411ED2144CBE5009FB9D6 /* Button.swift in Sources */,
 				EA161E5B20E26ABB0037AEFB /* GameScene.swift in Sources */,
 				EADB6FC720FD3819001DDAF3 /* Decision.swift in Sources */,
 				EA01851D20FD16F900B96508 /* CellObject.swift in Sources */,
+				EAA356F92159E37D009FC972 /* fonts.swift in Sources */,
 				EA6411E0213F9100009FB9D6 /* TopBar.swift in Sources */,
 				EAA356F0215201CA009FC972 /* Cell_State.swift in Sources */,
 				EA01851C20FD16E200B96508 /* Resources.swift in Sources */,
@@ -545,6 +567,7 @@
 				EAD239B921023AF000CCD8B2 /* LivingAsset.swift in Sources */,
 				EAD239BF2102766D00CCD8B2 /* CGSize.swift in Sources */,
 				EAD239BC21023C0B00CCD8B2 /* NonLivingAssets.swift in Sources */,
+				EAA356FC2159E873009FC972 /* GameScene_TopBar.swift in Sources */,
 				EA6411DE213F87C1009FB9D6 /* Shot.swift in Sources */,
 				EA161E5620E26AA30037AEFB /* Asset.swift in Sources */,
 				EAE7F10C210AC9E50033E2A9 /* GameScene_GameState.swift in Sources */,
@@ -553,6 +576,7 @@
 				EAD239B021022FD400CCD8B2 /* SKSpriteNode.swift in Sources */,
 				EAE7F106210828690033E2A9 /* Cell_AssetCreation.swift in Sources */,
 				EA2EDD6420E4189F00BAACA2 /* UserInfo.swift in Sources */,
+				EAA356F62159E2B6009FC972 /* Label.swift in Sources */,
 				EA161E5820E26AAA0037AEFB /* State.swift in Sources */,
 				EA161E5720E26AA60037AEFB /* Assets.swift in Sources */,
 				EA6411E52140D40E009FB9D6 /* StatusDisplay.swift in Sources */,

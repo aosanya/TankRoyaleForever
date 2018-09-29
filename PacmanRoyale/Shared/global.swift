@@ -39,6 +39,10 @@ func randint(_ lowerLimit : Int, upperLimit : Int) -> Int{
     return Int(arc4random_uniform(UInt32(upperLimit - lowerLimit)) + UInt32(lowerLimit)) - negative
 }
 
+func round(value : Double, point : Double) -> Double{
+    return round(value * point) / point
+}
+
 func getDistanceWithDelta(_ dx : Int, dy : Int) -> Double{
     return sqrt(pow(Double(dx), 2) + pow(Double(dy), 2))
 }
@@ -130,4 +134,5 @@ func convertRange(_ fromMin : Float, fromMax : Float, toMin : Float, toMax : Flo
     
     return newVal
 }
+
 

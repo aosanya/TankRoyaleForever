@@ -14,6 +14,7 @@ class Brain : Codable{
     var level : Double
     var id : String
     var decisions : Set<Decision> = Set<Decision>()
+    var decisionIndex : UInt = 0
     
     init(isMine : Bool, assetType : UInt, level : Double){
         self.id = generateID(clientId: clientId(), prefix: "Brain", suffix: "")
@@ -22,14 +23,18 @@ class Brain : Codable{
         self.level = level
     }
     
+    func changeId(){
+        self.id = generateID(clientId: clientId(), prefix: "Brain", suffix: "")
+    }
+    
     func addDecisions(states : States, preferredState : UInt){
         let existing = self.decisions.filter({m in m.states == states}).first
         if existing != nil{
             existing!.preferredState = preferredState
             return
         }
-    
-        self.decisions.insert(Decision(states: states, preferredState: preferredState))
+        self.decisionIndex += 1
+        self.decisions.insert(Decision(index : decisionIndex, states: states, preferredState: preferredState))
     }
     
     

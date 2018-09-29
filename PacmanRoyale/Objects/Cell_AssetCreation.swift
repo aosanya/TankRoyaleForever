@@ -30,9 +30,6 @@ extension Cell : Cell_AssetCreation{
         
     }
     
-
-    
-    
     func startTimerShadow(isMine : Bool, duration : Double)  {
         func addAsset(){
             self.delegate!.createAsset(cell: self, isMine: isMine)
