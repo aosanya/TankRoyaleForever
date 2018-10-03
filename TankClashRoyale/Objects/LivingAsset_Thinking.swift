@@ -14,6 +14,8 @@ protocol LivingAsset_Thinking {
 
 extension LivingAsset : LivingAsset_Thinking{
     func think(){
+        
+        
         guard self.brain != nil else {
             return
         }
@@ -22,27 +24,53 @@ extension LivingAsset : LivingAsset_Thinking{
             return
         }
         
-        isMakingDecision = true
-        guard self.brain.decisions.count > 0 else {
-            self.isMakingDecision = false
+        guard action(forKey: "override") == nil else {
+            self.staticThink()
             return
         }
         
+        
+        isMakingDecision = true
+        guard self.brain.decisions.count > 0 else {
+            if self.isMine == false{
+                self.moveToEnemyHome()
+            }
+            self.isMakingDecision = false
+            return
+        }        
         
         if isPerformingAction() == true{
             self.isMakingDecision = false
             return
         }
         
+        self.previousDecisions = nil
         if let decision = self.brain.getDecision(testStates: self.relativeState){
-            performDecision(preferredState: decision)
+            if decision.preferredState != 0 {
+                performDecision(decision: decision)
+            }
         }
         
-        self.autoThink()
+        self.staticThink()
         
         self.isMakingDecision = false
     }
     
+    func reverseDecision(){
+        guard self.previousDecisions != nil else {
+            return
+        }
+        
+        guard self.prevCell != nil else {
+            return
+        }
+        
+        self.brain.addDecisions(states: previousDecisions!.states, preferredState: 0)
+        self.stopAction()
+        self.cell = self.prevCell!
+        
+        self.moveToCell()
+    }
     func updateRelativeState(radius : Int, includingSelf : Bool){
         guard self.initialized == true else {
             return
@@ -50,7 +78,7 @@ extension LivingAsset : LivingAsset_Thinking{
         self.relativeState = cells.relativeCellsState(asset : self, cell: self.cell, radius: radius, includingSelf: false)
     }
     
-    func autoThink(){
+    func staticThink(){
         guard self.initialized == true else {
             return
         }
@@ -85,18 +113,37 @@ extension LivingAsset : LivingAsset_Thinking{
         return proposedCell
     }
     
+    
+    
     func faceEnemyCell(){
         if let target = self.getEnemyCell(){
             self.cellProposed(cell: target)
         }
     }
     
-    func performDecision(preferredState : UInt) {
-        let proposedCell = self.proposedCellToMoveTo(preferredState : preferredState)
+    func moveToEnemyHome(){
+        if let target = self.cellNextToEnemyHome(){
+            self.cellProposed(cell: target)
+        }
+    }
+    
+    func cellNextToEnemyHome() -> Cell?{
+        let proposedCell = self.proposedCellToMoveTo(preferredState : StateTypes.isNearerToEnemyHome.mask())
+        
+        guard proposedCell != nil else {
+            return nil
+        }
+        
+        return proposedCell
+    }
+    
+    func performDecision(decision : Decision) {
+        let proposedCell = self.proposedCellToMoveTo(preferredState : decision.preferredState)
         
         guard proposedCell != nil else {
             return
         }
+        self.previousDecisions = Decision(index: decision.index, states: decision.states, preferredState: decision.preferredState)
         self.cellProposed(cell: proposedCell!)
     }
     

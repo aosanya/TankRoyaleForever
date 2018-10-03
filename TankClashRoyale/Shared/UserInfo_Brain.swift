@@ -11,7 +11,7 @@ protocol UserInfo_Brain {
     
 }
 
-
+var cachedBrains : Data? = nil
 extension UserInfo : UserInfo_Brain  {
     static func resetBrains(){
         UserDefaults.standard.removeObject(forKey: "brains")

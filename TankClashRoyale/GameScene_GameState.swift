@@ -28,15 +28,27 @@ extension  GameScene : GameScene_GameState{
     
     func loadGameOver(){
         self.stopActions()
-        self.gameOverControl = GameOverControl(pointsChange: self.greenScore.score - self.redScore.score)
+        
+        let pointsChange = (Double(self.greenScore.score - self.redScore.score) / 100) * 3
+        self.gameOverControl = GameOverControl(pointsChange: pointsChange)
         self.gameOverControl!.delegate = self
         self.gameOverControl!.position = CGPoint(x: 0, y: self.topMenu.frame.minY - 100)
         self.addChild(self.gameOverControl!)
         self.repositionCellNode()
         
         for each in self.delegates{
-            each.gameOver(Iwin : self.greenScore.score > self.redScore.score)
+            each.gameOver(Iwin : pointsChange > 0)
         }
+        
+        if pointsChange > 0 {
+            self.greenScore.blinkBigger()
+            self.redScore.blinkSmaller()
+        }
+        else{
+            self.greenScore.blinkSmaller()
+            self.redScore.blinkBigger()
+        }
+        
     }
     
     func hideLoser(){

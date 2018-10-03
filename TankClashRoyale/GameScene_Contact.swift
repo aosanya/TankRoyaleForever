@@ -29,14 +29,15 @@ extension GameScene : GameScene_Contact{
             }
             if thisShot!.launcher != thisTank!.id{
                 thisTank?.gotShot(shotPower: thisShot!.payload)
-                self.updateScores(isMine: thisTank!.isMine)
+                //self.updateScores(isMine: thisTank!.isMine)
                 thisShot!.remove()
             }
             
 //        case GameObjectType.tank1.categoryBitMask() | GameObjectType.mainHome.categoryBitMask(),
 //             GameObjectType.tank1.categoryBitMask() | GameObjectType.sideHome.categoryBitMask():
 //            self.mergeAssets(asset1: contact.bodyA.node as! Asset, asset2: contact.bodyB.node as! Asset)
-        case GameObjectType.tank1.categoryBitMask() | GameObjectType.aidKit.categoryBitMask():
+        case GameObjectType.tank1.categoryBitMask() | GameObjectType.aidKit.categoryBitMask(),
+             GameObjectType.tank1.categoryBitMask() | GameObjectType.bomb.categoryBitMask():
             let asset : Asset?
             let object : CellObject?
             
@@ -69,9 +70,12 @@ extension GameScene : GameScene_Contact{
     }
     
     func collect(asset : Asset, cellObject : CellObject){
-        
         guard cellObject.removed == false else {
             return
+        }
+        
+        if cellObject.type == GameObjectType.bomb{
+            self.cellsNode.shake()
         }
         
         cellObject.removed = true

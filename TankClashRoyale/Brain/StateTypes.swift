@@ -10,7 +10,7 @@ import SpriteKit
 
 enum StateTypes : UInt{
     case hasAidKit = 1
-    case hasCandy1 = 2
+    case hasBomb = 2
     case hasCandy2 = 3
     case hasCandy3 = 4
     case hasCandy4 = 5

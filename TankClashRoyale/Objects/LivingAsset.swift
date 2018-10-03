@@ -25,6 +25,7 @@ class LivingAsset : Asset, StateDelegate{
     }
     
     var initialized : Bool = false
+    var previousDecisions : Decision?
     
     var state : Double{
         set {
@@ -130,9 +131,11 @@ class LivingAsset : Asset, StateDelegate{
         }
         
         UserInfo.brain(brain: Brain(isMine: isMine, assetType: self.assetType.rawValue, level: 1))
+        
         brains = UserInfo.brains().filter({m in m.isMine == false && m.assetType == self.assetType.rawValue})
         return brains.first!
     }
+    
     
     func shouldShoot() -> Bool{
         let frontCell = self.frontCell()
@@ -175,6 +178,12 @@ class LivingAsset : Asset, StateDelegate{
         self.run(sequence, withKey : "shooting")
     }
     
+    func startOverride(){
+        self.removeAction(forKey: "override")
+        let sequence = SKAction.sequence([SKAction.wait(forDuration: 10)])
+        self.run(sequence, withKey : "override")
+    }
+    
     func shoot(){
         for each in self.livingAssetDelegates{
             each.addShot(livingAsset: self)
@@ -198,6 +207,10 @@ class LivingAsset : Asset, StateDelegate{
             return true
         }
         return false
+    }
+    
+    func stopAction(){
+        self.removeAction(forKey: "moving")
     }
     
     private func thinkSpeed () -> Double{
@@ -300,7 +313,8 @@ class LivingAsset : Asset, StateDelegate{
         }
     }
     
-    func deInit(){
+    override func deInit(){
+        
         guard self.physicsBody != nil else{
             return
         }
@@ -313,6 +327,7 @@ class LivingAsset : Asset, StateDelegate{
         self.nextCell = nil
         self.prevCell = nil
         self.fadeOut(duration: 0.1, callBack: self.remove)
+        super.deInit()
         
     }
     

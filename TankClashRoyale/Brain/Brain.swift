@@ -52,7 +52,7 @@ class Brain : Codable{
         return sortedDecisions!.hashValue + 1
     }
     
-    func getDecision(testStates : States) -> UInt?{
+    func getDecision(testStates : States) -> Decision?{
         let exactMatch = getExactMatch(testStates: testStates)
         guard exactMatch == nil else{
             return exactMatch
@@ -70,36 +70,36 @@ class Brain : Codable{
         return nil
     }
     
-    private func getExactMatch(testStates : States) -> UInt?{
+    private func getExactMatch(testStates : States) -> Decision?{
         guard self.decisions.count > 0 else{
             return nil
         }
         
         let exactMatches = self.decisions.filter({m in m.states == testStates})
         if exactMatches.count > 0{
-            return exactMatches.first!.preferredState
+            return exactMatches.first!
         }
         
         return nil
 
     }
     
-   private func getSuperSet(testStates : States) -> UInt?{
+   private func getSuperSet(testStates : States) -> Decision?{
         let superSets = self.decisions.filter({m in m.states.set .isSuperset(of: testStates.set)})
 
         if superSets.count > 0{
-           return Array(superSets).last!.preferredState
+           return Array(superSets).last!
         }
 
         return nil
     
     }
 
-    private func getIntersection(testStates : States) -> UInt?{
+    private func getIntersection(testStates : States) -> Decision?{
         let intersection = self.decisions.filter({m in testStates.set.intersection(m.states.set).count > 0})
         
         if intersection.count > 0{
-            return Array(intersection).last!.preferredState
+            return Array(intersection).last!
         }
         
         return nil

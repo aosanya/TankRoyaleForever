@@ -14,56 +14,106 @@ protocol GameScene_UserInterface {
 }
 
 extension GameScene : GameScene_UserInterface{
+    
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for eachTouch in touches{
             for eachNode in self.nodes(at: eachTouch.location(in: self)){
                 if let thisAsset = eachNode as? LivingAsset{
-                    if thisAsset.isPerformingAction() == false{
+                    guard thisAsset.isMine  == true else{
+                        return
+                    }
+                    
+                    self.selectedAsset = thisAsset
+                    self.selectedAsset!.isPaused = true
+                   
+                    return
+                }
+                if let thisCell = eachNode as? Cell{
+                    guard thisCell.asset != nil else{
+                        return
+                    }
+                    if let thisAsset = thisCell.asset! as? LivingAsset{
+                        guard thisAsset.isMine  == true else{
+                            return
+                        }
+                        
                         self.selectedAsset = thisAsset
                         self.selectedAsset!.isPaused = true
+                        
+                        return
                     }
+                    
                 }
             }
         }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard selectedAsset != nil else {
+            return
+        }
         for eachTouch in touches{
-            for eachNode in self.nodes(at: eachTouch.location(in: self)){
-                if let thisCell = eachNode as? Cell{
-                    if self.selectedAsset != nil{
-                        let rel = self.selectedAsset!.cell.relativity(cell: thisCell)
-                        if rel.0 == 0 && rel.1 == 0{
-                            return
-                        }
-                        
-                        var row = rel.0
-                        var col = rel.1
-                        
-                        if row < -1{row = -1}
-                        if row > 1{row = 1}
-                        if col < -1{col = -1}
-                        if col > 1{col = 1}
-                        if let actualSelection = cells.relativeCell(cell: self.selectedAsset!.cell, row: row, col: col){
-                            self.addSelectedCell(cell: actualSelection)
-                        }                        
+            let nodes = self.nodes(at: eachTouch.location(in: self.cellsNode))
+            
+            for eachNode in nodes{
+                if let thisAsset = eachNode as? LivingAsset{
+                    if thisAsset.id == self.selectedAsset!.id{
+                        return
                     }
                 }
             }
+            
+            
+            for eachNode in nodes{
+                if let thisCell = eachNode as? Cell{
+                    
+                    
+                    let rel = self.selectedAsset!.cell.relativity(cell: thisCell)
+                
+                    var row = rel.0
+                    var col = rel.1
+                    
+                    if row < -1{row = -1}
+                    if row > 1{row = 1}
+                    if col < -1{col = -1}
+                    if col > 1{col = 1}
+                    if let actualSelection = cells.relativeCell(cell: self.selectedAsset!.cell, row: row, col: col){
+                        self.addSelectedCell(cell: actualSelection)
+                    }
+                    if self.selectedAsset!.cell.id != thisCell.id{
+                        return
+                    }
+                    
+                }
+            }
+           
+            self.clearSelectedCells()
+            
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if self.selectedAsset != nil && self.selectedCells.count == 1{
+        
+        guard selectedAsset != nil else {
+            return
+        }
+        
+        if self.selectedCells.count == 1{
             let radius : Int = 1
             _ = self.selectedAsset!.cell.relativity(cell: self.selectedCells.first!)
             //self.selectedAsset!.nextCell = self.selectedCells.first!
-            self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].relativeState(requestingAsset: self.selectedAsset!, radius: 1))
+            self.addMoveDecision(asset: self.selectedAsset!, preferredState: self.selectedCells[0].relativeState(requestingAsset: self.selectedAsset!, radius: radius))
             //Manual Decision
             if self.selectedAsset!.isPerformingAction() == false{
+                self.selectedAsset!.startOverride()
                 self.selectedAsset!.cellProposed(cell: self.selectedCells[0])
             }
             //
+        }
+        
+        if self.selectedCells.count == 0{
+            self.selectedAsset!.reverseDecision()
         }
         
         if self.selectedAsset != nil{

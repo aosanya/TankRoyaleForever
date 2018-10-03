@@ -13,9 +13,26 @@ class CellObject : GameObject{
     
     override init(cell : Cell, objectType : GameObjectType, size : CGSize) {
         super.init(cell: cell, objectType: objectType, size: size)
+        self.startCountDown()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func deInit(){
+        super.deInit()
+    }
+    
+    private func startCountDown(){
+        let countDown = SKAction.wait(forDuration: self.type.timeOnScene()!)
+        let action = SKAction.run {() in self.remove()}
+        let seq = SKAction.sequence([countDown, action])
+        self.run(seq, withKey: "countdown")
+    }
+    
+    func remove(){
+        self.deInit()
+        self.fadeOut(duration: 0.1, callBack: self.removeFromParent)
     }
 }

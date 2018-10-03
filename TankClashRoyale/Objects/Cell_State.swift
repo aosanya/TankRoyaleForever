@@ -20,6 +20,8 @@ extension Cell : Cell_State{
             switch self.object!.type{
                 case .aidKit:
                     state = state | StateTypes.hasAidKit.mask()
+                case .bomb:
+                    state = state | StateTypes.hasBomb.mask()
                 case .tank1, .cell, .shot: ()
             }
         }
@@ -47,6 +49,7 @@ extension Cell : Cell_State{
                 case .shot : ()
                 case .cell : ()
                 case .aidKit : ()
+                case .bomb : ()
             }
             
             
@@ -95,46 +98,33 @@ extension Cell : Cell_State{
     
     
     func proximityToHomeState(requestingAsset : Asset) -> UInt{
-        guard myHomePos !=  nil else{
-            return 0
-        }
-        
-        let actualHomePos : CellPos
-        if requestingAsset.isMine == true{
-            actualHomePos = myHomePos!
+        if requestingAsset.isMine == false{
+            if pos.row > requestingAsset.cell.pos.row{
+                return StateTypes.isNearerToHome.mask()
+            }
         }
         else{
-            actualHomePos = enemyHomePos!
+            if pos.row < requestingAsset.cell.pos.row{
+                return StateTypes.isNearerToHome.mask()
+            }
         }
         
-        let assetDistance = getCellDistance(requestingAsset.cell.pos, posB: actualHomePos)
-        let cellDistance = getCellDistance(self.pos, posB: actualHomePos)
-        
-        if assetDistance > cellDistance{
-            return StateTypes.isNearerToHome.mask()
-        }
         return 0
     }
     
     func proximityToEnemyHomeState(requestingAsset : Asset) -> UInt{
-        guard myHomePos !=  nil else{
-            return 0
-        }
         
-        let actualHomePos : CellPos
         if requestingAsset.isMine == false{
-            actualHomePos = myHomePos!
+            if pos.row < requestingAsset.cell.pos.row{
+                return StateTypes.isNearerToEnemyHome.mask()
+            }
         }
         else{
-            actualHomePos = enemyHomePos!
+            if pos.row > requestingAsset.cell.pos.row{
+                return StateTypes.isNearerToEnemyHome.mask()
+            }
         }
-        
-        let assetDistance = getCellDistance(requestingAsset.cell.pos, posB: actualHomePos)
-        let cellDistance = getCellDistance(self.pos, posB: actualHomePos)
-        
-        if assetDistance > cellDistance{
-            return StateTypes.isNearerToEnemyHome.mask()
-        }
+       
         return 0
     }
     

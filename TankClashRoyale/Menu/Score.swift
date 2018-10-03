@@ -66,11 +66,11 @@ class Score : SKNode{
     
     private func updateScore(){
         let diff = abs(showingScore - score)
-        var change = 0.01
-        if diff > 0.1{
-            change = 0.1
-        }
-        
+        let change : Double = 1
+//        if diff > 0.1{
+//            change = 0.1
+//        }
+
         if showingScore < score{
             showingScore += change
             if showingScore > score{
@@ -90,7 +90,7 @@ class Score : SKNode{
         else{
             removeAction(forKey: "updatingScores")
         }
-        self.scoreValue!.text = "\(round(100 * showingScore)/100)"
+        self.scoreValue!.text = "\(Int(showingScore))%"
     }
     
     private func addLabels(){
@@ -105,6 +105,17 @@ class Score : SKNode{
         self.scoreValue!.position = CGPoint(x: self.icon!.frame.maxY + 10, y: self.icon!.frame.origin.y + 5)
     }
     
+    func blinkBigger(){
+        let action = blinkLargerAction(speed: 5)
+        let actions = SKAction.repeat(action, count: 5)
+        self.scoreValue?.run(actions)
+    }
+    
+    func blinkSmaller(){
+        let action = blinkSmallerAction(speed: 5)
+        let actions = SKAction.repeat(action, count: 5)
+        self.scoreValue?.run(actions)
+    }
     
 }
 

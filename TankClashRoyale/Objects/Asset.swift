@@ -66,8 +66,6 @@ class Asset : GameObject{
     
     var isMine : Bool
     
-    
-    
     init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int){
         self.assetType = assetType
         self.isMine = isMine

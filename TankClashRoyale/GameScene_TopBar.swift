@@ -57,15 +57,16 @@ extension GameScene : GameScene_TopBar{
             return
         }
         self.timeLeft -= 1
+        let minutes = self.timeLeft / 60
+        let seconds = self.timeLeft % 60
+        self.timer.text = "\(minutes)" + ":" + String(format: "%02d", seconds)
+        self.timer.run(blinkSmallerAction())
         guard self.timeLeft > 0 else {
             self.removeAction(forKey: "UpdateInfo")
             self.gameOver = true
             return
         }
-        let minutes = self.timeLeft / 60
-        let seconds = self.timeLeft % 60
-        self.timer.text = "\(minutes)" + ":" + String(format: "%02d", seconds)
-        self.timer.run(blinkSmallerAction())
+
     }
     
 }

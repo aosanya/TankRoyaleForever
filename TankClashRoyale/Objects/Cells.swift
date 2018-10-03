@@ -230,6 +230,7 @@ class Cells : CellDelegate, GameSceneDelegate{
         return [Cell]()
     }
     
+
 //    func adjacentStaticCell(cell : Cell, state : UInt) -> [Cell]{
 //        guard cell.asset != nil else {
 //            return [Cell]()
@@ -286,6 +287,11 @@ class Cells : CellDelegate, GameSceneDelegate{
         else{
             return self.set.filter({m in m.isCreatingAsset == true && m.isRedHomeCell == true}).count > 0
         }
+    }
+    
+    func teamCells(isMine : Bool) -> [Cell]{
+        let cells = self.set.filter({m in m.asset != nil && (m.asset! as! Asset).isMine == isMine})
+        return cells
     }
     
     func canCreateAsset(isMine : Bool) -> Bool{

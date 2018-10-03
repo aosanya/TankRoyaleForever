@@ -67,4 +67,26 @@ extension SKNode {
             self.run(action)
         }
     }
+    
+    func shake(){
+        guard self.action(forKey: "shake") == nil else {
+            return
+        }
+        var diff : CGFloat = 5
+        var vectors : [CGVector] = [CGVector]()
+                
+        for _ in 0...10{
+            vectors.append(CGVector(dx: diff, dy: 0))
+            vectors.append(CGVector(dx: diff * -2, dy: 0))
+            vectors.append(CGVector(dx: diff, dy: 0))
+            diff = diff * 0.75
+        }
+        
+        var actions : [SKAction] = [SKAction]()
+        for each in vectors{
+            actions.append(SKAction.move(by: each, duration: TimeInterval(abs(each.dx) * 0.01)))
+        }
+        
+        self.run(SKAction.sequence(actions), withKey: "shake")
+    }
 }

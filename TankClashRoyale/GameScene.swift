@@ -32,7 +32,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var lblLevel : SKLabelNode!
     var redAssetCreationInterval : Double = 5
     var greenAssetCreationInterval : Double = 5
-    var assertCreationIntervalIncrease : Double = 0.5
+    var assertCreationIntervalIncrease : Double = 0
     var redHomeRow : Int!
     var greenHomeRow : Int!
     
@@ -61,8 +61,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var delegates : [GameSceneDelegate] = [GameSceneDelegate]()
     
     override func didMove(to view: SKView) {
-        //UserDefaults.standard.removeObject(forKey: "brains")
-        //UserDefaults.standard.removeObject(forKey: "score")
+        UserDefaults.standard.removeObject(forKey: "brains")
+        UserDefaults.standard.removeObject(forKey: "score")
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
         self.physicsWorld.contactDelegate = self
         self.addTopMenu()
@@ -114,15 +114,18 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.lblLevel.fontSize = 30
         self.lblLevel.zPosition = self.zPosition + 2
         self.addChild(self.lblLevel!)
+        
+        redAssetCreationInterval = Double(convertRange(1, fromMax: 10, toMin: 5, toMax: 1, convertVal: Float(UserInfo.getLevel())))
+        greenAssetCreationInterval = Double(convertRange(1, fromMax: 10, toMin: 5, toMax: 1, convertVal: Float(UserInfo.getLevel())))
+        
     }
-    
 
     
     func loadCells(){
         self.cellsNode = SKNode()
         self.addChild(self.cellsNode)
         let level = UserInfo.getLevel()
-        let rows = Int(convertRange(1, fromMax: 10, toMin: 4, toMax: 6, convertVal: Float(level)))
+        let rows = Int(convertRange(1, fromMax: 5, toMin: 4, toMax: 6, convertVal: Float(level)))
         let cols = Int(convertRange(1, fromMax: 10, toMin: 3, toMax: 7, convertVal: Float(level)))
         
         cells = Cells(area: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height), rows: rows, cols: cols, delegate: self)
@@ -155,20 +158,33 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func strengthChange(thisAsset: Asset) {
-       self.updateScores(isMine: thisAsset.isMine)
+       //self.updateScores(isMine: thisAsset.isMine)
     }
     
     func updateScores(isMine : Bool){
+        var diff = 1
+//        if assets.teamStrength(isMine: true) < assets.teamStrength(isMine: false){
+//           diff = -1
+//        }
+        
         if isMine {
-            greenScore.score = assets.teamStrength(isMine: true)
+            greenScore.score = ((Double(cells.teamCells(isMine: true).count) / Double(cells.set.count)) * 100) + Double(diff)
         }
         
         if !isMine{
-            redScore.score = assets.teamStrength(isMine: false)
+            redScore.score = ((Double(cells.teamCells(isMine: false).count) / Double(cells.set.count)) * 100) - Double(diff)
         }
         
         guard gameStarted == true else {
             return
+        }
+        
+        if redScore.score > 60{
+            self.gameOver = true
+        }
+        
+        if greenScore.score > 60{
+            self.gameOver = true
         }
         
         if redScore.score == 0 {
@@ -178,12 +194,16 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         if greenScore.score == 0 {
             self.gameOver = true
         }
-        
     }
     
     func loadResources(){
-        cells.abundance.add(ResourceAbundance(type: .aidKit, abundance: 10, maxPerTime: 3))
-//        cells.abundance.add(ResourceAbundance(type: .candy3, abundance: 10, maxPerTime: 3))
+        let level = UserInfo.getLevel()
+        
+        
+        cells.abundance.add(ResourceAbundance(type: .aidKit, abundance: 10, maxPerTime: Int(convertRange(1, fromMax: 10, toMin: 3, toMax: 5, convertVal: Float(level)))))
+        
+        
+        cells.abundance.add(ResourceAbundance(type: .bomb, abundance: 10, maxPerTime: Int(convertRange(1, fromMax: 10, toMin: 3, toMax: 6, convertVal: Float(level)))))
 //        cells.abundance.add(ResourceAbundance(type: .candy4, abundance: 10, maxPerTime: 2))
 //        cells.abundance.add(ResourceAbundance(type: .candy5, abundance: 10, maxPerTime: 1))
 //        var cell = cells.getCell(id: 2)
@@ -361,9 +381,6 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         thisShot.zPosition = livingAsset.zPosition + 1
     }
     
-    
-  
-    
     func dead(livingAsset: LivingAsset) {
         let isMine = livingAsset.isMine
         self.assets.remove(asset: livingAsset)
@@ -374,6 +391,9 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.updateScores(isMine: livingAsset.isMine)
     }
     
+    func cellChanged(thisAsset: Asset) {
+        self.updateScores(isMine: thisAsset.isMine)
+    }
     
     override func update(_ currentTime: TimeInterval) {
 

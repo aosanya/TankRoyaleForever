@@ -12,10 +12,24 @@ enum GameObjectType : UInt{
     case tank1 = 1
     case shot = 2
     case aidKit = 3
+    case bomb = 4
     case cell = 9
     
     func categoryBitMask() -> UInt32{
         return 1 << self.rawValue
+    }
+    
+    func isCollectible() -> Bool{
+        switch self {
+        case .tank1:
+            return false
+        case .shot:
+            return false
+        case .aidKit, .bomb:
+            return true
+        case .cell:
+            return false
+        }
     }
     
     func contactTestBitMask() -> UInt32{
@@ -28,6 +42,8 @@ enum GameObjectType : UInt{
             return GameObjectType.tank1.categoryBitMask()
         case .aidKit:
             return GameObjectType.tank1.categoryBitMask()
+        case .bomb:
+            return GameObjectType.tank1.categoryBitMask()
         }
     }
     
@@ -37,7 +53,7 @@ enum GameObjectType : UInt{
                 return false
             case .cell:
                 return false
-            case .shot, .aidKit:
+            case .shot, .aidKit, .bomb:
                 return false
         }
     }
@@ -48,7 +64,7 @@ enum GameObjectType : UInt{
             return CGPoint(x: 0, y: -15)
         case .cell:
             return CGPoint(x: 0, y: -8)
-        case .shot, .aidKit:
+        case .shot, .aidKit, .bomb:
             return nil
         }
     }
@@ -63,6 +79,8 @@ enum GameObjectType : UInt{
             return #imageLiteral(resourceName: "WhiteCellDotted")
         case .aidKit:
             return #imageLiteral(resourceName: "AidKit")
+        case .bomb:
+            return #imageLiteral(resourceName: "bomb")
         }
     }
     
@@ -77,6 +95,23 @@ enum GameObjectType : UInt{
             return nil
         case .aidKit:
             return CGSize(width: 0.5, height: 0.5)
+        case .bomb:
+            return CGSize(width: 0.375, height: 0.5)
+        }
+    }
+    
+    func timeOnScene() -> Double?{
+        switch self {
+        case .tank1:
+            return nil
+        case .shot:
+            return nil
+        case .cell:
+            return nil
+        case .aidKit:
+            return 10
+        case .bomb:
+            return 5
         }
     }
     
@@ -84,6 +119,8 @@ enum GameObjectType : UInt{
         switch  self {
             case .aidKit:
                 return 50
+            case .bomb:
+                return -50
             case .cell, .shot, .tank1:
                 return 0
         }
@@ -110,6 +147,7 @@ enum GameObjectType : UInt{
 
 protocol GameObjectDelegate {
     func strengthChanged(object : GameObject)
+    func cellChanged(object : GameObject)
 }
 
 class GameObject : SKSpriteNode{
@@ -143,7 +181,9 @@ class GameObject : SKSpriteNode{
                 newValue.object = self
             }
             _cell = newValue
-            
+            if self.gameObjectDelegate != nil{
+                self.gameObjectDelegate!.cellChanged(object: self)
+            }
             if _prevCell != nil{
                 _prevCell!.addPointer()
             }
@@ -254,6 +294,15 @@ class GameObject : SKSpriteNode{
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func deInit(){
+        self._cell = nil
+        self.label = nil
+        self.labelBackGround = nil
+        if gameObjectDelegate != nil{
+            self.gameObjectDelegate = nil
+        }
     }
     
     private func addLabel(){

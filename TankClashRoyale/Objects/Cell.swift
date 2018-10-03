@@ -355,7 +355,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
             if self.asset! is LivingAsset{
                 let livingAsset = self.asset as! LivingAsset
                 livingAsset.updateRelativeState(radius: 1, includingSelf: false)
-                livingAsset.autoThink()
+                livingAsset.staticThink()
             }
         }
     }
@@ -365,7 +365,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
             if self.asset! is LivingAsset{
                 let livingAsset = self.asset as! LivingAsset
                 livingAsset.updateRelativeState(radius: 1, includingSelf: false)
-                livingAsset.autoThink()
+                livingAsset.staticThink()
             }
         }
     }    

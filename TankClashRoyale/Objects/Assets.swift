@@ -15,9 +15,12 @@ var myHomePos : CellPos? = nil
 protocol AssetsDelegate{
     func assetCreated(thisAsset : Asset)
     func strengthChange(thisAsset : Asset)
+    func cellChanged(thisAsset : Asset)
 }
 
 class Assets : GameObjectDelegate, GameSceneDelegate{
+    
+    
     var living : [LivingAsset]! = [LivingAsset]()
     var nonliving : [NonLivingAsset]! = [NonLivingAsset]()
     var cells : Cells
@@ -163,6 +166,12 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     func strengthChanged(object : GameObject) {
         for each in self.delegates{
             each.strengthChange(thisAsset: object as! Asset)
+        }
+    }
+    
+    func cellChanged(object: GameObject) {
+        for each in self.delegates{
+            each.cellChanged(thisAsset: object as! Asset)
         }
     }
     
