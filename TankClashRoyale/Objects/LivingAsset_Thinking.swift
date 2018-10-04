@@ -29,8 +29,13 @@ extension LivingAsset : LivingAsset_Thinking{
             return
         }
         
-        
         isMakingDecision = true
+        if isPerformingAction() == true{
+            self.isMakingDecision = false
+            return
+        }
+        
+        
         guard self.brain.decisions.count > 0 else {
             if self.isMine == false{
                 self.moveToEnemyHome()
@@ -39,10 +44,7 @@ extension LivingAsset : LivingAsset_Thinking{
             return
         }        
         
-        if isPerformingAction() == true{
-            self.isMakingDecision = false
-            return
-        }
+ 
         
         self.previousDecisions = nil
         if let decision = self.brain.getDecision(testStates: self.relativeState){

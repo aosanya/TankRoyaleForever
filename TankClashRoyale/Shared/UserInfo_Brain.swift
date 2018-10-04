@@ -29,14 +29,28 @@ extension UserInfo : UserInfo_Brain  {
         var jsonData : Data? = nil
         do {
             jsonData =  try jsonEncoder.encode(brains)
+            cachedBrains = jsonData
         } catch {
             
         }
-        UserDefaults.standard.set(jsonData!, forKey: "brains")
+        
     }
     
+    static func saveCachedBrains(){
+        
+        guard cachedBrains != nil else{
+            return
+        }
+        
+        UserDefaults.standard.set(cachedBrains, forKey: "brains")
+    }
     static func brains() -> [Brain]{
+        if cachedBrains != nil{
+            return getCachedBrains()
+        }
+        
         if let brainData = UserDefaults.standard.value(forKey: "brains") as? Data{
+            cachedBrains = brainData
             do {
                 let brains = try JSONDecoder().decode([Brain].self, from: brainData)
                 return brains
@@ -48,6 +62,16 @@ extension UserInfo : UserInfo_Brain  {
             return [Brain]()
         }
     }
+    
+    static func getCachedBrains() -> [Brain]{
+        do {
+            let brains = try JSONDecoder().decode([Brain].self, from: cachedBrains!)
+            return brains
+        } catch {
+            return [Brain]()
+        }
+    }
+    
     
     static func brain(brain : Brain){
         var prevBrains = self.brains()

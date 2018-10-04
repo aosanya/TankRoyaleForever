@@ -45,6 +45,8 @@ class GameOverControl: SKNode {
         if self.Iwin {
             self.createEnemyBrains()
         }
+        
+        UserInfo.saveCachedBrains()
         self.addLabels()
         self.schedulePlayButton()
     }
