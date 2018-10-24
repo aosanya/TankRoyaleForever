@@ -16,6 +16,7 @@ extension LivingAsset : LivingAsset_Thinking{
     func think(){
         
         
+        
         guard self.brain != nil else {
             return
         }
@@ -81,6 +82,10 @@ extension LivingAsset : LivingAsset_Thinking{
     }
     
     func staticThink(){
+        guard self.action(forKey: "thinking") != nil else{
+            return
+        }
+        
         guard self.initialized == true else {
             return
         }

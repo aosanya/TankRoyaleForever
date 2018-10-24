@@ -40,6 +40,11 @@ extension SKNode {
         self.run(SKAction.sequence([action1, action2]))
     }
     
+    func scale(to : CGFloat, duration : Double){
+        let action = SKAction.scale(to: to, duration: duration)
+        self.run(action)
+    }
+    
     func popOut(duration : Double, callBack : (()  -> Void)?){
         let action1 = SKAction.scale(to: 1.25, duration: 0.4 * duration)
         let action2 = SKAction.scale(to: 1.15, duration: 0.6 * duration)

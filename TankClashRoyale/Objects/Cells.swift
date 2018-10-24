@@ -38,11 +38,11 @@ class Cells : CellDelegate, GameSceneDelegate{
         self.cellWidth = self.area.width / CGFloat(self.cols)
         self.cellHeight = self.area.height / CGFloat(self.rows)
         
-        if self.cellWidth  > maxWidth {
+        if self.cellWidth > maxWidth {
             self.cellWidth = maxWidth
         }
         
-        if self.cellHeight  > maxHeight {
+        if self.cellHeight > maxHeight {
             self.cellHeight = maxHeight
         }
         
@@ -113,7 +113,6 @@ class Cells : CellDelegate, GameSceneDelegate{
         guard candidates.count > 0 else {
             return nil
         }
-
         
         let candidate = candidates[randint(0, upperLimit: candidates.count - 1)]
         
@@ -148,9 +147,7 @@ class Cells : CellDelegate, GameSceneDelegate{
             each.isRedHomeCell = true
         }
     }
-    
-
-    
+        
     func setGreenHomeCells(row : Int){
         let cells = self.getRowCells(row: row)
         for each in cells{

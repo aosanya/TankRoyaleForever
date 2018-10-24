@@ -34,7 +34,7 @@ class GameViewController: UIViewController, GameSceneDelegate {
                     view.ignoresSiblingOrder = true
                     view.showsFPS = true
                     view.showsNodeCount = true
-                    //view.showsPhysics = true
+                    view.showsPhysics = true
                 }
             }
         }

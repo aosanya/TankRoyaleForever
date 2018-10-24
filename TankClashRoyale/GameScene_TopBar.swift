@@ -21,11 +21,11 @@ extension GameScene : GameScene_TopBar{
         self.addChild(topMenu)
         
         greenScore = Score(image: #imageLiteral(resourceName: "Tank1"), isMine: true)
-        greenScore.position = CGPoint(x: -220 , y: 0)
+        greenScore.position = CGPoint(x: -240 , y: 0)
         topMenu.addChild(greenScore)
         
         redScore = Score(image: #imageLiteral(resourceName: "Tank1"), isMine: false)
-        redScore.position = CGPoint(x: 180 , y: 0)
+        redScore.position = CGPoint(x: 200 , y: 0)
         topMenu.addChild(redScore)
         
         self.addTimer()
@@ -42,12 +42,12 @@ extension GameScene : GameScene_TopBar{
     }
     
     func addTimer(){
-        self.timerLabel = Label(text: "", fontDetails : Fonts.header(scale: 1), backgroundImage: nil)
+        self.timerLabel = Label(text: "", fontDetails : Fonts.header(scale: 0.9), backgroundImage: nil)
         self.timerLabel.position = CGPoint(x : 0, y : 0)
         self.timerLabel.text = "Time left"
         topMenu.addChild(self.timerLabel)
         
-        self.timer = Label(text: "", fontDetails : Fonts.header(scale: 1), backgroundImage: nil)
+        self.timer = Label(text: "", fontDetails : Fonts.header(scale: 0.9), backgroundImage: nil)
         self.timer.position = CGPoint(x : 0 , y : -40)
         topMenu.addChild(self.timer)
     }

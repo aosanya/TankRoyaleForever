@@ -27,6 +27,15 @@ extension GameScene : GameScene_Contact{
                 thisShot = contact.bodyB.node as? Shot
                 thisTank = contact.bodyA.node as? LivingAsset
             }
+            
+            guard thisShot != nil else{
+                return
+            }
+            
+            guard thisTank != nil else{
+                return
+            }
+            
             if thisShot!.launcher != thisTank!.id{
                 thisTank?.gotShot(shotPower: thisShot!.payload)
                 //self.updateScores(isMine: thisTank!.isMine)
@@ -50,9 +59,37 @@ extension GameScene : GameScene_Contact{
                 object = contact.bodyA.node as? CellObject
             }
             
+            guard asset != nil else{
+                return
+            }
+            
+            guard object != nil else{
+                return
+            }
+            
             self.collect(asset: asset!, cellObject: object!)
         case GameObjectType.tank1.categoryBitMask() | GameObjectType.cell.categoryBitMask():
-            (contact.bodyA.node as! Cell).addContactingAsset(asset: (contact.bodyB.node as! Asset))
+            let asset : Asset?
+            let cell : Cell?
+            
+            if contact.bodyA.node is Asset{
+                asset = contact.bodyA.node as? Asset
+                cell = contact.bodyB.node as? Cell
+            }
+            else{
+                asset = contact.bodyB.node as? Asset
+                cell = contact.bodyA.node as? Cell
+            }
+            
+            guard asset != nil else{
+                return
+            }
+            
+            guard cell != nil else{
+                return
+            }
+            
+            cell!.addContactingAsset(asset: asset!)
         default:
             return
         }
@@ -62,7 +99,26 @@ extension GameScene : GameScene_Contact{
     @objc(didEndContact:) func didEnd(_ contact: SKPhysicsContact) {
         switch contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask {
         case GameObjectType.tank1.categoryBitMask() | GameObjectType.cell.categoryBitMask():
-            (contact.bodyA.node as! Cell).removeContactingAsset(id: (contact.bodyB.node as! Asset).id)
+            let asset : Asset?
+            let cell : Cell?
+            
+            if contact.bodyA.node is Asset{
+                asset = contact.bodyA.node as? Asset
+                cell = contact.bodyB.node as? Cell
+            }
+            else{
+                asset = contact.bodyB.node as? Asset
+                cell = contact.bodyA.node as? Cell
+            }
+            
+            guard asset != nil else{
+                return
+            }
+            
+            guard cell != nil else{
+                return
+            }
+            cell!.removeContactingAsset(id: asset!.id)
         default:
             return
         }
@@ -80,7 +136,9 @@ extension GameScene : GameScene_Contact{
         
         cellObject.removed = true
         (asset as! LivingAsset).collect(collection: cellObject.collection)
-        cellObject.cell.object = nil
+        if cellObject.cell != nil{
+            cellObject.cell.object = nil
+        }        
         cellObject.removeFromParent()
     }
 }

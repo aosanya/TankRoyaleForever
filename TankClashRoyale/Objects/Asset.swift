@@ -32,6 +32,13 @@ enum AssetType : UInt{
         }
     }    
     
+    func creationTime() -> Double{
+        switch self {
+        case .tank1:
+            return 5
+        }
+    }
+    
     func durability() -> Double{
         switch self {
         case .tank1:

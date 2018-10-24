@@ -36,7 +36,7 @@ class GameOverControl: SKNode {
     
     
     init(pointsChange : Double) {
-        self.scoreChange = pointsChange * 0.1
+        self.scoreChange = pointsChange
         super.init()
         self.normalizeScoreChange()
         UserInfo.changeScore(change: self.scoreChange)
@@ -143,7 +143,7 @@ class GameOverControl: SKNode {
         self.playButton.position.y = points.calculateAccumulatedFrame().minY - self.playButton.calculateAccumulatedFrame().height - 30
     }
     
-    func restartGame(){
+    func restartGame(thisButton : Button){
         self.delegate!.restartGame()
     }
     

@@ -202,8 +202,19 @@ class LivingAsset : Asset, StateDelegate{
         return false
     }
     
+    func isMoving() -> Bool{
+        guard action(forKey: "moving") == nil else {
+            return true
+        }
+      
+        return false
+    }
+    
     func isPerformingAction() -> Bool{
         guard action(forKey: "moving") == nil else {
+            return true
+        }
+        guard action(forKey: "turning") == nil else {
             return true
         }
         return false
@@ -211,6 +222,7 @@ class LivingAsset : Asset, StateDelegate{
     
     func stopAction(){
         self.removeAction(forKey: "moving")
+        self.removeAction(forKey: "turning")
     }
     
     private func thinkSpeed () -> Double{
@@ -237,6 +249,10 @@ class LivingAsset : Asset, StateDelegate{
         
         if self.action(forKey: "moving") != nil{
             consumption += 0.5
+        }
+        
+        if self.action(forKey: "turning") != nil{
+            consumption += 0.3
         }
         
         if self.action(forKey: "shooting") != nil{

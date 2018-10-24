@@ -80,6 +80,8 @@
 		EAA356FC2159E873009FC972 /* GameScene_TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FA2159E873009FC972 /* GameScene_TopBar.swift */; };
 		EAA356FE215B2B8E009FC972 /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FD215B2B8D009FC972 /* Actions.swift */; };
 		EAA356FF215B2B8E009FC972 /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA356FD215B2B8D009FC972 /* Actions.swift */; };
+		EAC381B8216C5F01003968BC /* TankSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC381B7216C5F01003968BC /* TankSelector.swift */; };
+		EAC381B9216C5F01003968BC /* TankSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC381B7216C5F01003968BC /* TankSelector.swift */; };
 		EAD239AB21022A6100CCD8B2 /* TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AA21022A6100CCD8B2 /* TopBar.swift */; };
 		EAD239AF21022FD400CCD8B2 /* SKSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */; };
 		EAD239B021022FD400CCD8B2 /* SKSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */; };
@@ -173,6 +175,7 @@
 		EAA356F72159E37D009FC972 /* fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fonts.swift; sourceTree = "<group>"; };
 		EAA356FA2159E873009FC972 /* GameScene_TopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene_TopBar.swift; sourceTree = "<group>"; };
 		EAA356FD215B2B8D009FC972 /* Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Actions.swift; sourceTree = "<group>"; };
+		EAC381B7216C5F01003968BC /* TankSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TankSelector.swift; sourceTree = "<group>"; };
 		EAD239AA21022A6100CCD8B2 /* TopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBar.swift; sourceTree = "<group>"; };
 		EAD239AE21022FD300CCD8B2 /* SKSpriteNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SKSpriteNode.swift; sourceTree = "<group>"; };
 		EAD239B12102306C00CCD8B2 /* CGPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPoint.swift; sourceTree = "<group>"; };
@@ -364,6 +367,7 @@
 				EAD239B42102320300CCD8B2 /* Score.swift */,
 				EA6411EB2144CBE4009FB9D6 /* Button.swift */,
 				EAA356F42159E2B5009FC972 /* Label.swift */,
+				EAC381B7216C5F01003968BC /* TankSelector.swift */,
 			);
 			path = Menu;
 			sourceTree = "<group>";
@@ -548,6 +552,7 @@
 				EA9703CB20DED9CD00F392E4 /* Assets.swift in Sources */,
 				EA46593820DC36EC006A4C92 /* GameScene.swift in Sources */,
 				EA161E5420E264F90037AEFB /* GameObject.swift in Sources */,
+				EAC381B8216C5F01003968BC /* TankSelector.swift in Sources */,
 				EAD239BE2102766D00CCD8B2 /* CGSize.swift in Sources */,
 				EADB6FC620FD3819001DDAF3 /* Decision.swift in Sources */,
 				EAE7F105210828690033E2A9 /* Cell_AssetCreation.swift in Sources */,
@@ -631,6 +636,7 @@
 				EA8142F3214624E7003FCA50 /* LivingAsset_Thinking.swift in Sources */,
 				EA2EDD6A20E5566300BAACA2 /* Brain.swift in Sources */,
 				EA8142F621462693003FCA50 /* LivingAsset_Actions.swift in Sources */,
+				EAC381B9216C5F01003968BC /* TankSelector.swift in Sources */,
 				EAE7F10F210B3FE10033E2A9 /* SKLabelNode.swift in Sources */,
 				EA0D747A2101346F00E1397E /* StatusIndicator.swift in Sources */,
 				EA2EDD6D20E638BE00BAACA2 /* Asset_Actions.swift in Sources */,

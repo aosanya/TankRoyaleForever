@@ -64,7 +64,7 @@ extension LivingAsset : LivingAsset_Actions{
         actions.append(actionComplete)
         
         let sequence = SKAction.sequence(actions)
-        self.run(sequence, withKey : "moving")
+        self.run(sequence, withKey : "turning")
     }
     
     func rotationToFace(cell : Cell) -> CGFloat{

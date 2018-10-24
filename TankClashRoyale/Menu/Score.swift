@@ -64,6 +64,12 @@ class Score : SKNode{
         self.run(SKAction.repeatForever(sequence), withKey : "updatingScores")
     }
     
+    func closeScore(){
+        removeAction(forKey: "updatingScores")
+        showingScore = score
+        self.scoreValue!.text = "\(Int(showingScore))%"
+    }
+    
     private func updateScore(){
         let diff = abs(showingScore - score)
         let change : Double = 1
@@ -98,6 +104,7 @@ class Score : SKNode{
         self.scoreValue = SKLabelNode(text: "")
         self.scoreValue!.fontName = Fonts.header(scale: 1).fontName
         self.scoreValue!.fontColor = Fonts.header(scale: 1).color
+        self.scoreValue!.fontSize = Fonts.header(scale : 0.9).pointSize
         
         self.scoreValue!.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         self.addChild(scoreValue!)
@@ -106,13 +113,13 @@ class Score : SKNode{
     }
     
     func blinkBigger(){
-        let action = blinkLargerAction(speed: 5)
+        let action = blinkLargerAction(speed: 5, scale: 1.5)
         let actions = SKAction.repeat(action, count: 5)
         self.scoreValue?.run(actions)
     }
     
     func blinkSmaller(){
-        let action = blinkSmallerAction(speed: 5)
+        let action = blinkSmallerAction(speed: 5, scale: 0.5)
         let actions = SKAction.repeat(action, count: 5)
         self.scoreValue?.run(actions)
     }

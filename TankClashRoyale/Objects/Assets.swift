@@ -16,6 +16,7 @@ protocol AssetsDelegate{
     func assetCreated(thisAsset : Asset)
     func strengthChange(thisAsset : Asset)
     func cellChanged(thisAsset : Asset)
+    func noMoreAssets(isMine : Bool)
 }
 
 class Assets : GameObjectDelegate, GameSceneDelegate{
@@ -138,6 +139,7 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     }
     
     func remove(asset : Asset){
+        let isMine = asset.isMine
         if asset is NonLivingAsset{
             self.nonliving = self.nonliving.filter({m in m.id != asset.id})
             asset.removeFromParent()
@@ -146,8 +148,15 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
             self.living = self.living.filter({m in m.id != asset.id})
             let livingAsset = asset as! LivingAsset
             livingAsset.deInit()
+            let remaining = self.living.filter({m in m.isMine == isMine})
+            if remaining.count == 0{
+                for each in self.delegates{
+                    each.noMoreAssets(isMine: isMine)
+                }
+            }
         }
     }
+    
     
     func propagateBrain(asset : Asset){
         let candidates = self.living.filter({m in m.id != (asset as! LivingAsset).id && m.isMine == asset.isMine && m.assetType == asset.assetType})

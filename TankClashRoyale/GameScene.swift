@@ -18,8 +18,6 @@ protocol GameSceneDelegate {
 }
 
 class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelegate, GameOverDelegate, LivingAssetDelegate {
-
-
     var assets : Assets!
     var selectedAsset : LivingAsset?
     var selectedCells : [Cell] = [Cell]()
@@ -30,17 +28,17 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var timeLeft : Int = 176
     var newAssetStrength : Int = 1
     var lblLevel : SKLabelNode!
-    var redAssetCreationInterval : Double = 5
-    var greenAssetCreationInterval : Double = 5
     var assertCreationIntervalIncrease : Double = 0
     var redHomeRow : Int!
     var greenHomeRow : Int!
-    
+   
     var redStarted : Bool = false
     var greenStarted : Bool = false
     var gameOverControl : GameOverControl?
     var topMenu : TopBar!
     var cellsNode : SKNode!
+    var greenSelector : TankSelector!
+    var redSelector : TankSelector!
     
     var gameOver : Bool = false{
         didSet{
@@ -61,16 +59,25 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var delegates : [GameSceneDelegate] = [GameSceneDelegate]()
     
     override func didMove(to view: SKView) {
-        UserDefaults.standard.removeObject(forKey: "brains")
-        UserDefaults.standard.removeObject(forKey: "score")
+        //UserDefaults.standard.removeObject(forKey: "brains")
+        //UserDefaults.standard.removeObject(forKey: "score")
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
         self.physicsWorld.contactDelegate = self
         self.addTopMenu()
         self.loadLevel()
         self.loadCells()
+        self.loadTankSelectors()
         self.loadResources()
         self.loadAssets()
+        
         //self.showGameOver()
+        self.startGame()
+        
+    }
+    
+    func startGame(){
+        self.triggerCreatingAssets(isMine: true)
+        self.triggerCreatingAssets(isMine: false)
         self.startResourceGeneration(interval: 5)
     }
 
@@ -83,6 +90,10 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.assets = nil
         self.selectedAsset = nil
         self.cellsNode = nil
+        self.greenSelector.deInitialize()
+        self.greenSelector = nil
+        self.redSelector.deInitialize()
+        self.redSelector = nil
         self.topMenu = nil
         self.gameOverControl = nil
         self.redScore = nil
@@ -114,27 +125,21 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.lblLevel.fontSize = 30
         self.lblLevel.zPosition = self.zPosition + 2
         self.addChild(self.lblLevel!)
-        
-        redAssetCreationInterval = Double(convertRange(1, fromMax: 10, toMin: 5, toMax: 1, convertVal: Float(UserInfo.getLevel())))
-        greenAssetCreationInterval = Double(convertRange(1, fromMax: 10, toMin: 5, toMax: 1, convertVal: Float(UserInfo.getLevel())))
-        
     }
-
     
     func loadCells(){
         self.cellsNode = SKNode()
         self.addChild(self.cellsNode)
         let level = UserInfo.getLevel()
-        let rows = Int(convertRange(1, fromMax: 5, toMin: 4, toMax: 6, convertVal: Float(level)))
+        let rows = Int(convertRange(1, fromMax: 5, toMin: 4, toMax: 8, convertVal: Float(level)))
         let cols = Int(convertRange(1, fromMax: 10, toMin: 3, toMax: 7, convertVal: Float(level)))
         
-        cells = Cells(area: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height), rows: rows, cols: cols, delegate: self)
+        cells = Cells(area: CGRect(x: 0, y: 0, width: self.frame.width * 0.5, height: self.frame.height * 0.5), rows: rows, cols: cols, delegate: self)
         self.delegates.append(cells)
         self.greenHomeRow = 0
         self.redHomeRow = rows - 1
         cells.setRedHomeCells(row: self.redHomeRow)
         cells.setGreenHomeCells(row: self.greenHomeRow)
-        
 //        //Debug Code
 //        let redHome = cells.getCell(id: 12)
 //        redHome?.isRedHomeCell = true
@@ -144,11 +149,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
 //        //End of Debug
         
 
-        self.triggerCreatingAssets(isMine: true)
-        self.triggerCreatingAssets(isMine: false)
     }
-    
-
     
     func loadAssets(){
         self.assets = Assets(cells: cells, delegate: self)
@@ -156,6 +157,25 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         greenScore.score = assets.teamStrength(isMine: true)
         redScore.score = assets.teamStrength(isMine: false)
     }
+    
+    func loadTankSelectors(){
+        let greenAssets =  [AssetType.tank1, AssetType.tank1, AssetType.tank1]
+        let redAssets =  [AssetType.tank1, AssetType.tank1]
+        
+        greenSelector = TankSelector(assetTypes : greenAssets)
+        
+        redSelector = TankSelector(assetTypes : redAssets)
+        
+        let cellsPos = self.cellsNode.calculateAccumulatedFrame()
+        let greenSize = greenSelector.calculateAccumulatedFrame()
+        greenSelector.position = CGPoint(x: 0, y: cellsPos.minY - 100)
+        self.addChild(greenSelector)
+        
+        redSelector.position = CGPoint(x: 0, y: cellsPos.maxY + 90)
+        self.addChild(redSelector)
+        
+    }
+    
     
     func strengthChange(thisAsset: Asset) {
        //self.updateScores(isMine: thisAsset.isMine)
@@ -254,13 +274,14 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
             let randCellPos = randint(0, upperLimit: homeCells.count - 1)
             randomCell = homeCells[randCellPos]
         }
+
         
         var assetCreationInterval : Double = 0
         if isMine == true{
-            assetCreationInterval = greenAssetCreationInterval
+            assetCreationInterval = self.greenSelector.selectedType!.creationTime()
         }
         else if isMine == false{
-            assetCreationInterval = redAssetCreationInterval
+            assetCreationInterval = self.redSelector.selectedType!.creationTime()
         }
         
         guard randomCell != nil else {
@@ -271,12 +292,12 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         }
         
         randomCell!.createAsset(isMine: isMine, duration: assetCreationInterval)
-        if isMine == true{
-            greenAssetCreationInterval += assertCreationIntervalIncrease
-        }
-        else if isMine == false{
-            redAssetCreationInterval += assertCreationIntervalIncrease
-        }
+//        if isMine == true{
+//            greenAssetCreationInterval += assertCreationIntervalIncrease
+//        }
+//        else if isMine == false{
+//            redAssetCreationInterval += assertCreationIntervalIncrease
+//        }
     }
     
     func assetCreationComplete(cell: Cell, isMine: Bool) {
@@ -385,6 +406,10 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         let isMine = livingAsset.isMine
         self.assets.remove(asset: livingAsset)
         self.updateScores(isMine: isMine)
+    }
+    
+    func noMoreAssets(isMine: Bool) {
+        self.gameOver = true
     }
     
     func stateChanged(livingAsset: LivingAsset) {

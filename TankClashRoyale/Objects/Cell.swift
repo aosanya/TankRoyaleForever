@@ -68,8 +68,40 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     
     var isReadyToCreatAsset : Bool = false
     var isRedHomeCell : Bool = false
+    {
+        didSet{
+            self.createHomeCell()
+        }
+    }
     var isGreenHomeCell : Bool = false
+    {
+        didSet{
+            self.createHomeCell()
+        }
+    }
+    
+    var generatedAsset : AssetType? {
+        didSet{
+            self.createAssetCell()
+        }
+    }
+    
+    var isGreenAssetCell : Bool = false
+    {
+        didSet{
+            self.createAssetCell()
+        }
+    }
+
+    var isRedAssetCell : Bool = false
+    {
+        didSet{
+            self.createAssetCell()
+        }
+    }
+    
     var label : SKLabelNode!
+    
     var state : UInt = 0
     var delegate : CellDelegate?
     var object : GameObject?{
@@ -180,6 +212,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.isDynamic = false
         self.physicsBody?.allowsRotation = false
+        self.createHomeCell()
         //self.text("\(self.id)")
     }
     
@@ -209,6 +242,31 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         self.label.fontColor = UIColor.black
         self.addChild(self.label!)
         self.label.zPosition = self.zPosition  +  1
+    }
+    
+    private func createHomeCell(){
+//        if self.isRedHomeCell{
+//            self.texture = SKTexture(image: #imageLiteral(resourceName: "Steel"))
+//        }
+//        else if self.isGreenHomeCell{
+//            self.texture = SKTexture(image: #imageLiteral(resourceName: "Steel"))
+//        }
+    }
+    
+    private func createAssetCell(){
+        guard self.generatedAsset != nil else{
+            return
+        }
+        
+        if self.isGreenAssetCell{
+            self.texture = SKTexture(image: self.generatedAsset!.images())
+            self.size = CGSize(width: 50, height: 50)
+            
+        }
+        else if self.isRedAssetCell{
+            self.texture = SKTexture(image: self.generatedAsset!.images())
+            self.size = CGSize(width: 50, height: 50)
+        }
     }
     
     func text(_ value: String) {
@@ -350,7 +408,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
         return (cell.pos.row - self.pos.row,  cell.pos.col - self.pos.col)
     }
     
-    func neighboringAssetChanged(cell : Cell){
+    func neighboringAssetChanged(cell : Cell){        
         if self.asset != nil{
             if self.asset! is LivingAsset{
                 let livingAsset = self.asset as! LivingAsset

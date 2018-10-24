@@ -15,21 +15,27 @@ protocol GameScene_GameState {
 extension  GameScene : GameScene_GameState{
     private func stopActions(){
         self.stopResourceGeneration()
+        
         for each in assets.living{
             each.removeAllActions()
+            each.isPaused = true
         }
         for each in assets.nonliving{
             each.removeAllActions()
+            each.isPaused = true
         }
         for each in cells.set{
             each.removeAllActions()
+            each.isPaused = true
         }
     }
     
     func loadGameOver(){
         self.stopActions()
         
-        let pointsChange = (Double(self.greenScore.score - self.redScore.score) / 100) * 3
+        self.greenScore.closeScore()
+        self.redScore.closeScore()
+        let pointsChange = (Double(self.greenScore.score - self.redScore.score) / 100) * 2
         self.gameOverControl = GameOverControl(pointsChange: pointsChange)
         self.gameOverControl!.delegate = self
         self.gameOverControl!.position = CGPoint(x: 0, y: self.topMenu.frame.minY - 100)
