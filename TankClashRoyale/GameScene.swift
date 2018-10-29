@@ -18,6 +18,8 @@ protocol GameSceneDelegate {
 }
 
 class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelegate, GameOverDelegate, LivingAssetDelegate {
+
+    
     var assets : Assets!
     var selectedAsset : LivingAsset?
     var selectedCells : [Cell] = [Cell]()
@@ -26,7 +28,6 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     var timer : Label!
     var timerLabel : Label!
     var timeLeft : Int = 176
-    var newAssetStrength : Int = 1
     var lblLevel : SKLabelNode!
     var assertCreationIntervalIncrease : Double = 0
     var redHomeRow : Int!
@@ -159,8 +160,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func loadTankSelectors(){
-        let greenAssets =  [AssetType.tank1, AssetType.tank1, AssetType.tank1]
-        let redAssets =  [AssetType.tank1, AssetType.tank1]
+        let greenAssets =  [AssetType.tank1, AssetType.tank2 , AssetType.tank3]
+        let redAssets =  [AssetType.tank1, AssetType.tank2, AssetType.tank3]
         
         greenSelector = TankSelector(assetTypes : greenAssets)
         
@@ -291,13 +292,13 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
             return
         }
         
-        randomCell!.createAsset(isMine: isMine, duration: assetCreationInterval)
-//        if isMine == true{
-//            greenAssetCreationInterval += assertCreationIntervalIncrease
-//        }
-//        else if isMine == false{
-//            redAssetCreationInterval += assertCreationIntervalIncrease
-//        }
+        
+        if isMine == true{
+           randomCell!.createAsset(isMine: isMine, type: greenSelector.selectedType)
+        }
+        else if isMine == false{
+            randomCell!.createAsset(isMine: isMine, type: redSelector.selectedType)
+        }
     }
     
     func assetCreationComplete(cell: Cell, isMine: Bool) {
@@ -309,20 +310,20 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.triggerCreatingAssets(isMine: isMine)
     }
     
-    func createAsset(cell: Cell, isMine: Bool) {
+    func createAsset(cell: Cell, isMine: Bool, type: AssetType) {
         guard  gameOver == false else {
             return
         }
- //       if let upgradeCandidate = cell.contactingAssets.filter({m in m.isMine == isMine}).first{
-//            if upgradeCandidate.isMine == isMine {
-//                upgradeCandidate.strength += newAssetStrength
-//            }
-//            else{
-//                upgradeCandidate.strength -= newAssetStrength
-//            }
-//            return
-//        }
-        self.assets.createAssets(cell: cell.id, isMine: isMine, strength: newAssetStrength)
+        //       if let upgradeCandidate = cell.contactingAssets.filter({m in m.isMine == isMine}).first{
+        //            if upgradeCandidate.isMine == isMine {
+        //                upgradeCandidate.strength += newAssetStrength
+        //            }
+        //            else{
+        //                upgradeCandidate.strength -= newAssetStrength
+        //            }
+        //            return
+        //        }
+        self.assets.createAssets(cell: cell.id, isMine: isMine, type: type)
     }
     
 //    func loadSeats(){
@@ -388,8 +389,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
 //    }
     
     func addShot(livingAsset : LivingAsset){
-        let pos = extrapolatePointUsingAngle(livingAsset.position, direction: livingAsset.forwardDirection, byVal: livingAsset.assetType.size().height * 0.3)
-        
+        let pos = extrapolatePointUsingAngle(livingAsset.position, direction: livingAsset.forwardDirection, byVal: livingAsset.assetType.gameSize().height * 0.3)
         let moveVector = extrapolatePointUsingAngle(CGPoint.zero, direction: livingAsset.forwardDirection, byVal: cells.cellHeight)
         let moveAction = SKAction.moveBy(x: moveVector.x, y: moveVector.y, duration: 0.5)
         

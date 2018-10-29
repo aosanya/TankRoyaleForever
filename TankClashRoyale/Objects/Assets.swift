@@ -61,26 +61,26 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
 //        }
 //    }
     
-    func createAssets(cell : Int, isMine : Bool, strength : Int ){
+    func createAssets(cell : Int, isMine : Bool, type : AssetType){
         if let cell = self.cells.getCell(id: cell){
-            self.addLiving(type: AssetType.tank1, cell: cell, isMine: isMine, strength: strength)
+            self.addLiving(type: type, cell: cell, isMine: isMine)
         }
     }
     
-    private func createEnemyAssets(){
-        if let cell = self.cells.getCell(id: 1){
-            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 75)
-        }
-        if let cell = self.cells.getCell(id: 5){
-            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 100)
-        }
-        if let cell = self.cells.getCell(id: 4){
-            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 75)
-        }
-        if let cell = self.cells.getCell(id: 14){
-            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 25)
-        }
-    }
+//    private func createEnemyAssets(){
+//        if let cell = self.cells.getCell(id: 1){
+//            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 75)
+//        }
+//        if let cell = self.cells.getCell(id: 5){
+//            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 100)
+//        }
+//        if let cell = self.cells.getCell(id: 4){
+//            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 75)
+//        }
+//        if let cell = self.cells.getCell(id: 14){
+//            self.addLiving(type: AssetType.tank1, cell: cell, isMine: false, strength: 25)
+//        }
+//    }
     
 //    private func createEnemyHomes(){
 //        if let cell = self.cells.getCell(id: 33){
@@ -95,14 +95,14 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
 //        }
 //    }
     
-    private func addLiving(type : AssetType, cell : Cell, isMine : Bool, strength :  Int){
+    private func addLiving(type : AssetType, cell : Cell, isMine : Bool){
         currentId += 1
         var asset : LivingAsset!
         if isMine{
-            asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, strength: strength)
+            asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine)
         }
         else{
-            asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, strength: strength, brain : getCurrentEnemyBrain())
+            asset = LivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, brain : getCurrentEnemyBrain())
         }
         
         asset.gameObjectDelegate = self
@@ -129,7 +129,7 @@ class Assets : GameObjectDelegate, GameSceneDelegate{
     
     private func addNonLiving(type : AssetType, cell : Cell, isMine : Bool, strength :  Int){
         currentId += 1
-        let asset = NonLivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine, strength: strength)
+        let asset = NonLivingAsset(id : currentId, assetType: type, cell: cell, isMine: isMine)
         asset.gameObjectDelegate = self
         self.nonliving.append(asset)
         

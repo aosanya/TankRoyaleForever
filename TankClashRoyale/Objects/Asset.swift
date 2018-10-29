@@ -10,18 +10,50 @@ import SpriteKit
 
 enum AssetType : UInt{
     case tank1 = 1
+    case tank2 = 2
+    case tank3 = 3
     
     func images() -> UIImage{
         switch self {
         case .tank1:
             return #imageLiteral(resourceName: "Tank1")
+        case .tank2:
+            return #imageLiteral(resourceName: "Tank2")
+        case .tank3:
+            return #imageLiteral(resourceName: "Tank3")
         }
     }
     
-    func size() -> CGSize{
+    private func size() -> CGSize{
         switch self {
         case .tank1:
-            return CGSize(width: 60, height: 60)
+            return CGSize(width: 35, height: 70)
+        case .tank2:
+            return CGSize(width: 35, height: 70)
+        case .tank3:
+            return CGSize(width: 163, height: 310)
+        }
+    }
+    
+    func gameSize() -> CGSize{
+        switch self {
+        case .tank1:
+            return self.size().fitTo(size: CGSize(width: 75, height: 75))
+        case .tank2:
+            return self.size().fitTo(size: CGSize(width: 80, height: 80))
+        case .tank3:
+            return self.size().fitTo(size: CGSize(width: 80, height: 80))
+        }
+    }
+    
+    func selectorSize() -> CGSize{
+        switch self {
+        case .tank1:
+            return self.size().fitTo(size: CGSize(width: 75, height: 75))
+        case .tank2:
+            return self.size().fitTo(size: CGSize(width: 80, height: 80))
+        case .tank3:
+            return self.size().fitTo(size: CGSize(width: 80, height: 80))
         }
     }
     
@@ -29,6 +61,10 @@ enum AssetType : UInt{
         switch self {
         case .tank1:
             return 1
+        case .tank2:
+            return 1.2
+        case .tank3:
+            return 1.3
         }
     }    
     
@@ -36,6 +72,10 @@ enum AssetType : UInt{
         switch self {
         case .tank1:
             return 5
+        case .tank2:
+            return 10
+        case .tank3:
+            return 15
         }
     }
     
@@ -43,6 +83,10 @@ enum AssetType : UInt{
         switch self {
         case .tank1:
             return 1
+        case .tank2:
+            return 1.5
+        case .tank3:
+            return 2
         }
     }
     
@@ -50,6 +94,10 @@ enum AssetType : UInt{
         switch self {
         case .tank1:
             return 1
+        case .tank2:
+            return 2
+        case .tank3:
+            return 3
         }
     }
     
@@ -58,6 +106,10 @@ enum AssetType : UInt{
         switch self {
         case .tank1:
             return GameObjectType.tank1
+        case .tank2:
+            return GameObjectType.tank2
+        case .tank3:
+            return GameObjectType.tank3
         }
     }
 }
@@ -73,10 +125,10 @@ class Asset : GameObject{
     
     var isMine : Bool
     
-    init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int){
+    init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool){
         self.assetType = assetType
         self.isMine = isMine
-        super.init(id : id,cell : cell, assetType : self.assetType, strength : strength)
+        super.init(id : id,cell : cell, assetType : self.assetType)
         
         self.position = self.cell.position
         self.zPosition = self.cell.zPosition + 10

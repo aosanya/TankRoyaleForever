@@ -10,14 +10,14 @@ import SpriteKit
 
 protocol CellsDelegate{
     func cellCreated(thisCell : Cell)
-    func createAsset(cell : Cell, isMine : Bool)
+    func createAsset(cell : Cell, isMine : Bool, type : AssetType)
     func assetCreationComplete(cell : Cell, isMine : Bool)
     func canCreateAsset(isMine : Bool)
 }
 
-
-
 class Cells : CellDelegate, GameSceneDelegate{
+
+
     
 
     var set : [Cell]! = [Cell]()
@@ -95,9 +95,9 @@ class Cells : CellDelegate, GameSceneDelegate{
         }
     }
     
-    func createAsset(cell: Cell, isMine: Bool) {
+    func createAsset(cell: Cell, isMine: Bool, type: AssetType) {
         for each in self.delegates{
-            each.createAsset(cell: cell, isMine: isMine)
+            each.createAsset(cell: cell, isMine: isMine, type: type)
         }
     }
     

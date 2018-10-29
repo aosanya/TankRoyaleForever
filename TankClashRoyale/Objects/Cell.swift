@@ -34,7 +34,7 @@ enum CellState : UInt{
 protocol CellDelegate {
     func objectChanged(cell : Cell)
     func assetChanged(cell : Cell)
-    func createAsset(cell : Cell, isMine : Bool)
+    func createAsset(cell : Cell, isMine : Bool, type : AssetType)
     func assetCreationComplete(cell : Cell, isMine : Bool)
 }
 
@@ -57,6 +57,7 @@ struct CellPos : Hashable{
 class Cell : SKSpriteNode, LivingAssetDelegate{
     var id : Int
     var pos : CellPos
+    var isCreatingAssetType : AssetType?
     var isCreatingAsset : Bool = false{
         didSet{
             if isCreatingAsset == false{

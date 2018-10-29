@@ -68,18 +68,17 @@ class LivingAsset : Asset, StateDelegate{
         }
     }
     
-    override init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int){
-        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
+    override init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool){
+        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine)
         self.brain = getBrain()
         self.initialize()
         
     }
 
-    init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int, brain : Brain?){
-        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
+    init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, brain : Brain?){
+        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine)
         self.brain = brain !== nil ? brain : getBrain()
-        self.initialize()
-        
+        self.initialize()        
     }
 
     func initialize(){

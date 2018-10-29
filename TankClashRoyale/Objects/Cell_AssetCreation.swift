@@ -17,27 +17,28 @@ extension Cell : Cell_AssetCreation{
         return (self.isGreenHomeCell || self.isRedHomeCell) && self.isEmpty()
     }
     
-    func createAsset(isMine : Bool, duration : Double){
+    func createAsset(isMine : Bool, type : AssetType){
         self.alpha = 0.1
-        startTimerShadow(isMine: isMine, duration: duration)
+        startTimerShadow(isMine: isMine, type: type)
     }
     
     private func raiseAssetCreationComplete(isMine : Bool){
         self.alpha = 1
         self.isReadyToCreatAsset = true
         self.delegate!.assetCreationComplete(cell: self, isMine: isMine)
-        self.isCreatingAsset = false
-        
+        self.isCreatingAsset = false        
     }
     
-    func startTimerShadow(isMine : Bool, duration : Double)  {
+    func startTimerShadow(isMine : Bool, type : AssetType)  {
         func addAsset(){
-            self.delegate!.createAsset(cell: self, isMine: isMine)
+            self.delegate!.createAsset(cell: self, isMine: isMine, type: self.isCreatingAssetType!)
         }
         
         var actionName = ""
         var shadowColor : UIColor = UIColor.clear
         self.isCreatingAsset = true
+        self.isCreatingAssetType = type
+        let duration = self.isCreatingAssetType!.creationTime()
         
         if isMine == true{
             shadowColor = UIColor.green

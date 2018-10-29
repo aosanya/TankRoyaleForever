@@ -10,10 +10,13 @@ import SpriteKit
 
 enum GameObjectType : UInt{
     case tank1 = 1
+    case tank2 = 10
+    case tank3 = 11
     case shot = 2
     case aidKit = 3
     case bomb = 4
     case cell = 9
+    
     
     func categoryBitMask() -> UInt32{
         return 1 << self.rawValue
@@ -21,7 +24,7 @@ enum GameObjectType : UInt{
     
     func isCollectible() -> Bool{
         switch self {
-        case .tank1:
+        case .tank1, .tank2, .tank3:
             return false
         case .shot:
             return false
@@ -34,22 +37,22 @@ enum GameObjectType : UInt{
     
     func contactTestBitMask() -> UInt32{
         switch self {
-        case .tank1:
-            return GameObjectType.tank1.categoryBitMask()
+        case .tank1, .tank2, .tank3:
+           return GameObjectType.tank1.categoryBitMask() | GameObjectType.tank2.categoryBitMask() | GameObjectType.tank3.categoryBitMask()
         case .shot:
-            return GameObjectType.tank1.categoryBitMask()
+            return GameObjectType.tank1.categoryBitMask() | GameObjectType.tank2.categoryBitMask() | GameObjectType.tank3.categoryBitMask()
         case .cell:
-            return GameObjectType.tank1.categoryBitMask()
+            return GameObjectType.tank1.categoryBitMask() | GameObjectType.tank2.categoryBitMask() | GameObjectType.tank3.categoryBitMask()
         case .aidKit:
-            return GameObjectType.tank1.categoryBitMask()
+            return GameObjectType.tank1.categoryBitMask() | GameObjectType.tank2.categoryBitMask() | GameObjectType.tank3.categoryBitMask()
         case .bomb:
-            return GameObjectType.tank1.categoryBitMask()
+            return GameObjectType.tank1.categoryBitMask() | GameObjectType.tank2.categoryBitMask() | GameObjectType.tank3.categoryBitMask()
         }
     }
     
     func hasLabel() -> Bool{
         switch self {
-            case .tank1:
+            case .tank1, .tank2, .tank3:
                 return false
             case .cell:
                 return false
@@ -60,7 +63,7 @@ enum GameObjectType : UInt{
     
     func labelPosition() -> CGPoint?{
         switch self {
-        case .tank1:
+        case .tank1, .tank2, .tank3:
             return CGPoint(x: 0, y: -15)
         case .cell:
             return CGPoint(x: 0, y: -8)
@@ -73,6 +76,10 @@ enum GameObjectType : UInt{
         switch self {
         case .tank1:
             return #imageLiteral(resourceName: "Tank1")
+        case .tank2:
+            return #imageLiteral(resourceName: "Tank2")
+        case .tank3:
+            return #imageLiteral(resourceName: "Tank3")
         case .shot:
             return #imageLiteral(resourceName: "redBullet")
         case .cell:
@@ -86,7 +93,7 @@ enum GameObjectType : UInt{
     
     func size() -> CGSize?{
         switch self {
-        case .tank1:
+        case .tank1, .tank2, .tank3:
             return nil
         case .shot:
             //return CGSize(width: 30, height: 52)
@@ -102,7 +109,7 @@ enum GameObjectType : UInt{
     
     func timeOnScene() -> Double?{
         switch self {
-        case .tank1:
+        case .tank1, .tank2, .tank3:
             return nil
         case .shot:
             return nil
@@ -121,14 +128,14 @@ enum GameObjectType : UInt{
                 return 50
             case .bomb:
                 return -50
-            case .cell, .shot, .tank1:
+            case .cell, .shot, .tank1, .tank2, .tank3:
                 return 0
         }
     }
     
     func statusBarSize() -> CGSize?{
         switch self {
-        case .tank1:
+        case .tank1, .tank2, .tank3 :
             return CGSize(width: 50, height: 10)
         default:
             return nil
@@ -138,6 +145,10 @@ enum GameObjectType : UInt{
     func statusBarPosition() -> CGPoint?{
         switch self {
         case .tank1:
+            return CGPoint(x: 0, y: -0.7)
+        case .tank2:
+            return CGPoint(x: 0, y: -0.7)
+        case .tank3:
             return CGPoint(x: 0, y: -0.7)
         default:
             return CGPoint(x: 0, y: -0.7)
@@ -254,11 +265,11 @@ class GameObject : SKSpriteNode{
     }
     
     //Living
-    init(id : UInt,cell : Cell, assetType : AssetType, strength : Int) {
+    init(id : UInt,cell : Cell, assetType : AssetType) {
         self.id = id
         self.type = assetType.gameObjectType()
-        self.strength = strength
-        super.init(texture: SKTexture(image: self.type.image()), color: UIColor.clear, size: assetType.size())
+        self.strength = 1
+        super.init(texture: SKTexture(image: self.type.image()), color: UIColor.clear, size: assetType.gameSize())
         self.cell = cell
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
         self.physicsBody?.categoryBitMask = assetType.gameObjectType().categoryBitMask()

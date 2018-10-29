@@ -19,9 +19,9 @@ enum StateTypes : UInt{
     case hasCandy7 = 8
     case hasMainHome = 9
     case hasSideHome = 10
-    case hasTank = 11
-    
-
+    case hasTank1 = 11
+    case hasTank2 = 12
+    case hasTank3 = 13
     
     
     case hasMyAsset = 15

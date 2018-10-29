@@ -12,7 +12,6 @@ class TankSelector : SKNode{
     var tanks : [Button] = [Button]()
     var types : [AssetType]
     var selected : String = ""
-    
     var selectedType : AssetType!
 
     init(assetTypes : [AssetType]) {
@@ -29,10 +28,9 @@ class TankSelector : SKNode{
     func addTanks(){
         var startPoint = (CGFloat(types.count) / -2) + 0.5
         for i in 0...types.count - 1{
-            let tank = Button(image: types[i].images(), action: selectTank)
+            let tank = Button(image: types[i].images(), action: selectTank, size : types[i].selectorSize())
             tank.data = types[i] as AnyObject
-            let bgSize = tank.calculateAccumulatedFrame().size.factor(2)
-            tank.setBackground2(image: #imageLiteral(resourceName: "Tile_1"), size: bgSize)
+            tank.setBackground2(image: #imageLiteral(resourceName: "Tile_1"), size: CGSize(width: 120, height: 120))
             tank.position = CGPoint(x: tank.calculateAccumulatedFrame().size.width * startPoint * 1.5 , y: 0)
             self.tanks.append(tank)
             startPoint += 1

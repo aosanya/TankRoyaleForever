@@ -29,11 +29,11 @@ class Button : SKNode{
         self.isUserInteractionEnabled = true
     }
     
-    init(image : UIImage, action : @escaping((Button)  -> Void)) {
+    init(image : UIImage, action : @escaping((Button)  -> Void), size : CGSize = CGSize(width: 50, height: 50)) {
         self.text = ""
         self.action = action
         super.init()
-        self.addBackground(image: image, size: CGSize(width: 50, height: 50))
+        self.addBackground(image: image, size: size)
         self.isUserInteractionEnabled = true
     }
     

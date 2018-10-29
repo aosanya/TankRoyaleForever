@@ -22,7 +22,7 @@ extension Cell : Cell_State{
                     state = state | StateTypes.hasAidKit.mask()
                 case .bomb:
                     state = state | StateTypes.hasBomb.mask()
-                case .tank1, .cell, .shot: ()
+                case .tank1, .tank2, .tank3, .cell, .shot: ()
             }
         }
         return state
@@ -44,14 +44,17 @@ extension Cell : Cell_State{
         if self.asset != nil{
             let actualAsset = self.asset! as! Asset
             switch self.asset!.type{
-                case .tank1:
-                    state =  state | StateTypes.hasTank.mask()
-                case .shot : ()
-                case .cell : ()
-                case .aidKit : ()
-                case .bomb : ()
+            case .tank1:
+                    state =  state | StateTypes.hasTank1.mask()
+            case .tank2:
+                state =  state | StateTypes.hasTank2.mask()
+            case .tank3:
+                state =  state | StateTypes.hasTank3.mask()
+            case .shot : ()
+            case .cell : ()
+            case .aidKit : ()
+            case .bomb : ()
             }
-            
             
             if (self.asset as! LivingAsset).prevCell != nil {
                 state =  state | StateTypes.assetIsMoving.mask()
@@ -227,29 +230,30 @@ extension Cell : Cell_State{
     }
     
     func setColor(){
-        
-        
-        
         guard self.asset == nil else {
             if (self.asset as! Asset).isMine {
-                self.color = UIColor.green
+                self.color = UIColor.white
+                self.colorBlendFactor = 0
+                return
             }
             else{
                 self.color = UIColor.red
+                self.colorBlendFactor = 0.3
+                return
             }
-            self.colorBlendFactor = 0.3
-            return
         }
         
         guard self.prevAsset == nil else {
             if (self.prevAsset as! Asset).isMine {
-                self.color = UIColor.green
+                self.color = UIColor.white
+                self.colorBlendFactor = 0
+                return
             }
             else{
                 self.color = UIColor.red
+                self.colorBlendFactor = 0.1
+                return
             }
-            self.colorBlendFactor = 0.1
-            return
         }
         
         guard self.isCreatingAsset == false else {

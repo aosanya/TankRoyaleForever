@@ -31,6 +31,7 @@ extension  GameScene : GameScene_GameState{
     }
     
     func loadGameOver(){
+        self.hideSelectors()
         self.stopActions()
         
         self.greenScore.closeScore()
@@ -65,6 +66,11 @@ extension  GameScene : GameScene_GameState{
             self.assets.hide(isMine: true)
         }
         
+    }
+    
+    func hideSelectors(){
+        self.greenSelector.fadeOut(duration: 1)
+        self.redSelector.fadeOut(duration: 1)
     }
     
     func showingPoints() {

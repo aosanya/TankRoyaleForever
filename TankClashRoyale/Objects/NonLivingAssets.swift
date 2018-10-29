@@ -9,8 +9,8 @@
 import SpriteKit
 
 class NonLivingAsset : Asset{
-    override init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool, strength : Int){
-        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine, strength: strength)
+    override init(id : UInt, assetType : AssetType, cell : Cell, isMine : Bool){
+        super.init(id: id, assetType: assetType, cell: cell, isMine: isMine)
     }
     
     required init?(coder aDecoder: NSCoder) {
