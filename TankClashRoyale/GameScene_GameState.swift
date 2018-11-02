@@ -34,10 +34,15 @@ extension  GameScene : GameScene_GameState{
         self.hideSelectors()
         self.stopActions()
         
+        self.updateScores(isMine: true)
+        self.updateScores(isMine: false)
+        
         self.greenScore.closeScore()
         self.redScore.closeScore()
+        
         let pointsChange = (Double(self.greenScore.score - self.redScore.score) / 100) * 2
-        self.gameOverControl = GameOverControl(pointsChange: pointsChange)
+        
+        self.gameOverControl = GameOverControl(pointsChange: pointsChange, scoreDiff : Double(self.greenScore.score - self.redScore.score))
         self.gameOverControl!.delegate = self
         self.gameOverControl!.position = CGPoint(x: 0, y: self.topMenu.frame.minY - 100)
         self.addChild(self.gameOverControl!)

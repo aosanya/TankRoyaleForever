@@ -13,7 +13,8 @@ class TankSelector : SKNode{
     var types : [AssetType]
     var selected : String = ""
     var selectedType : AssetType!
-
+    var canSelect : Bool = true
+    
     init(assetTypes : [AssetType]) {
         self.types = assetTypes
         super.init()
@@ -47,19 +48,15 @@ class TankSelector : SKNode{
             return
         }
         
-        self.selectTank(thisButton: self.tanks[0])
+        self.switchTanks(thisButton: self.tanks[0])
     }
     
+
     func selectTank(thisButton : Button){
-        guard thisButton.id != self.selected else {
+        guard self.canSelect == true else {
             return
         }
-        
-        thisButton.setBackground2(image: #imageLiteral(resourceName: "Tile_Glowing"))
-        thisButton.scale(to: 1.25, duration: 0.1)
-        self.selected = thisButton.id
-        self.selectedType = thisButton.data! as? AssetType
-        self.deselectTanks()
+        self.switchTanks(thisButton: thisButton)
     }
     
    private func deselectTanks(){
@@ -71,4 +68,20 @@ class TankSelector : SKNode{
         }
     }
     
+    private func switchTanks(thisButton : Button){
+        guard thisButton.id != self.selected else {
+            return
+        }
+        
+        thisButton.setBackground2(image: #imageLiteral(resourceName: "Tile_Glowing"))
+        thisButton.scale(to: 1.25, duration: 0.1)
+        self.selected = thisButton.id
+        self.selectedType = thisButton.data! as? AssetType
+        self.deselectTanks()
+    }
+    
+    func selectRandom(){
+        let rand = randint(0, upperLimit: self.tanks.count)
+        self.switchTanks(thisButton: self.tanks[rand])
+    }
 }

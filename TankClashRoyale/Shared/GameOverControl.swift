@@ -20,23 +20,25 @@ class GameOverControl: SKNode {
     var points : SKNode = SKNode()
     var delegate : GameOverDelegate?
     var scoreChange : Double
+    var scoreDiff : Double
     
     var Iwin : Bool{
         get{
-           return self.scoreChange > 0
+           return self.scoreDiff > 0
         }
     }
     
     var ILose : Bool{
         get{
-            return self.scoreChange < 0
+            return self.scoreDiff < 0
         }
     }
     
     
     
-    init(pointsChange : Double) {
+    init(pointsChange : Double, scoreDiff : Double) {
         self.scoreChange = pointsChange
+        self.scoreDiff = scoreDiff
         super.init()
         self.normalizeScoreChange()
         UserInfo.changeScore(change: self.scoreChange)
@@ -99,6 +101,7 @@ class GameOverControl: SKNode {
     
     
     private func showWinner(){
+        
         if self.Iwin == true{
             self.lblGameOver.text = "You win"
         }

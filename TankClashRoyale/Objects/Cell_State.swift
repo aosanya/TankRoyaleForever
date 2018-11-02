@@ -14,7 +14,7 @@ protocol Cell_State {
 
 extension Cell : Cell_State{
     
-    private func objectState() -> UInt{
+    func objectState() -> UInt{
         var state : UInt = 0
         if self.object != nil{
             switch self.object!.type{

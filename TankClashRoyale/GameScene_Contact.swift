@@ -137,10 +137,11 @@ extension GameScene : GameScene_Contact{
         
         cellObject!.removed = true
         (asset as! LivingAsset).collect(collection: cellObject!.collection)
-        if cellObject!.cell != nil{
-            cellObject!.cell.object = nil
-        }        
-        cellObject!.removeFromParent()
+//        if cellObject!.cell != nil{
+//
+//            cellObject!.cell.object = nil
+//        }
+        cellObject!.remove()
     }
     
     func addCellContact(contact: SKPhysicsContact){

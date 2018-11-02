@@ -119,6 +119,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func loadLevel(){
+        
         self.lblLevel = SKLabelNode(text: "Level \(round(value: UserInfo.getLevel(), point: 100))")
         self.lblLevel.fontName = "ChalkboardSE-Regular"
         self.lblLevel.fontColor = UIColor(red: 46/255, green: 46/255, blue: 46/255, alpha: 1)
@@ -135,7 +136,13 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         let rows = Int(convertRange(1, fromMax: 5, toMin: 4, toMax: 8, convertVal: Float(level)))
         let cols = Int(convertRange(1, fromMax: 10, toMin: 3, toMax: 7, convertVal: Float(level)))
         
-        cells = Cells(area: CGRect(x: 0, y: 0, width: self.frame.width * 0.5, height: self.frame.height * 0.5), rows: rows, cols: cols, delegate: self)
+        let levelWidth = CGFloat(convertRange(1, fromMax: 10, toMin: Float(self.frame.width * 0.7), toMax: Float(self.frame.width * 0.9), convertVal: Float(level)))
+      
+        let maxCellWidth = CGFloat(convertRange(1, fromMax: 6, toMin: 150, toMax: 100, convertVal: Float(level)))
+        let maxCellHeight = CGFloat(convertRange(1, fromMax: 5, toMin: 150, toMax: 100, convertVal: Float(level)))
+        let maxCellSize = CGSize(width: maxCellWidth, height: maxCellHeight)
+        
+        cells = Cells(area: CGRect(x: 0, y: 0, width: levelWidth, height: self.frame.height * 0.5), rows: rows, cols: cols, maxCellSize : maxCellSize, delegate: self)
         self.delegates.append(cells)
         self.greenHomeRow = 0
         self.redHomeRow = rows - 1
@@ -149,7 +156,7 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
 //        greenHome?.isGreenHomeCell = true
 //        //End of Debug
         
-
+        self.cellsNode.speed = CGFloat(convertRange(1, fromMax: 10, toMin: 1, toMax: 2, convertVal: Float(level)))
     }
     
     func loadAssets(){
@@ -163,18 +170,22 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         let greenAssets =  [AssetType.tank1, AssetType.tank2 , AssetType.tank3]
         let redAssets =  [AssetType.tank1, AssetType.tank2, AssetType.tank3]
         
-        greenSelector = TankSelector(assetTypes : greenAssets)
-        
+        greenSelector = TankSelector(assetTypes : greenAssets)        
         redSelector = TankSelector(assetTypes : redAssets)
         
         let cellsPos = self.cellsNode.calculateAccumulatedFrame()
-        let greenSize = greenSelector.calculateAccumulatedFrame()
-        greenSelector.position = CGPoint(x: 0, y: cellsPos.minY - 100)
+        //let greenSize = greenSelector.calculateAccumulatedFrame()
+        
+        let level = UserInfo.getLevel()
+        let greenGap = CGFloat(convertRange(1, fromMax: 10, toMin: Float(150), toMax: Float(120), convertVal: Float(level)))
+        greenSelector.position = CGPoint(x: 0, y: cellsPos.minY - greenGap)
         self.addChild(greenSelector)
         
-        redSelector.position = CGPoint(x: 0, y: cellsPos.maxY + 90)
+        let redGap = CGFloat(convertRange(1, fromMax: 5, toMin: Float(120), toMax: Float(100), convertVal: Float(level)))
+        redSelector.position = CGPoint(x: 0, y: cellsPos.maxY + redGap)
+        redSelector.zRotation = angleToRadians(angle: 180)
+        redSelector.canSelect = false
         self.addChild(redSelector)
-        
     }
     
     
@@ -183,17 +194,17 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func updateScores(isMine : Bool){
-        var diff = 1
+        //var diff = 1
 //        if assets.teamStrength(isMine: true) < assets.teamStrength(isMine: false){
 //           diff = -1
 //        }
         
         if isMine {
-            greenScore.score = ((Double(cells.teamCells(isMine: true).count) / Double(cells.set.count)) * 100) + Double(diff)
+            greenScore.score = ((Double(cells.teamCells(isMine: true).count) / Double(cells.set.count)) * 100)
         }
         
         if !isMine{
-            redScore.score = ((Double(cells.teamCells(isMine: false).count) / Double(cells.set.count)) * 100) - Double(diff)
+            redScore.score = ((Double(cells.teamCells(isMine: false).count) / Double(cells.set.count)) * 100)
         }
         
         guard gameStarted == true else {
@@ -323,6 +334,9 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         //            }
         //            return
         //        }
+        if isMine == false{
+            self.redSelector.selectRandom()
+        }
         self.assets.createAssets(cell: cell.id, isMine: isMine, type: type)
     }
     

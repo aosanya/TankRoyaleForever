@@ -35,7 +35,7 @@ class Score : SKNode{
     }
     
     private func addIcon(image : UIImage){
-        self.icon = SKSpriteNode(texture: SKTexture(image: image), color: UIColor.clear, size: CGSize(width: 50, height: 50))
+        self.icon = SKSpriteNode(texture: SKTexture(image: image), color: UIColor.clear, size: image.size.fitTo(size: CGSize(width: 60, height: 60)))
         
         self.addChild(self.icon!)
         self.icon!.zPosition = self.zPosition  +  1
@@ -71,7 +71,7 @@ class Score : SKNode{
     }
     
     private func updateScore(){
-        let diff = abs(showingScore - score)
+      //  let diff = abs(showingScore - score)
         let change : Double = 1
 //        if diff > 0.1{
 //            change = 0.1

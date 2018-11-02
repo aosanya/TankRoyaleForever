@@ -60,19 +60,18 @@ extension LivingAsset : LivingAsset_Thinking{
     }
     
     func reverseDecision(){
-        guard self.previousDecisions != nil else {
-            return
-        }
-        
         guard self.prevCell != nil else {
             return
         }
         
-        self.brain.addDecisions(states: previousDecisions!.states, preferredState: 0)
         self.stopAction()
-        self.cell = self.prevCell!
-        
+        self.cell = self.prevCell!        
         self.moveToCell()
+        
+        if self.previousDecisions != nil {
+            self.brain.addDecisions(states: previousDecisions!.states, preferredState: 0)
+        }
+        
     }
     func updateRelativeState(radius : Int, includingSelf : Bool){
         guard self.initialized == true else {
@@ -130,6 +129,10 @@ extension LivingAsset : LivingAsset_Thinking{
     
     func moveToEnemyHome(){
         if let target = self.cellNextToEnemyHome(){
+            let state = target.objectState()
+            if state | StateTypes.hasBomb.mask() == state{
+                return
+            }
             self.cellProposed(cell: target)
         }
     }

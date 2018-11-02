@@ -308,6 +308,9 @@ class GameObject : SKSpriteNode{
     }
     
     func deInit(){
+        if self._cell != nil{
+            self._cell.object = nil
+        }
         self._cell = nil
         self.label = nil
         self.labelBackGround = nil

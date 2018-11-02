@@ -32,6 +32,7 @@ class CellObject : GameObject{
     }
     
     func remove(){
+        
         self.deInit()
         self.fadeOut(duration: 0.1, callBack: self.removeFromParent)
     }

@@ -32,7 +32,7 @@ class GameViewController: UIViewController, GameSceneDelegate {
                 if let view = self.view as! SKView? {
                     view.presentScene(sceneNode)
                     view.ignoresSiblingOrder = true
-                    view.showsFPS = true
+                    //view.showsFPS = true
                     //view.showsNodeCount = true
                     //view.showsPhysics = true
                 }
@@ -43,7 +43,8 @@ class GameViewController: UIViewController, GameSceneDelegate {
     func loadAds(){
         bannerView = GADBannerView(adSize: kGADAdSizeBanner)
         addBannerViewToView(bannerView)
-        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        //Test : bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.adUnitID = "ca-app-pub-4605074909933211/4148605837"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
     }

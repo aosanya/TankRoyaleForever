@@ -27,14 +27,17 @@ class Cells : CellDelegate, GameSceneDelegate{
     var delegates = [CellsDelegate]()
     var cellWidth : CGFloat
     var cellHeight : CGFloat
-    let maxWidth : CGFloat = 150
-    let maxHeight : CGFloat = 150
+    var maxWidth : CGFloat
+    var maxHeight : CGFloat
     var abundance : Resources = Resources()
     
-    init(area : CGRect, rows : Int, cols : Int, delegate : CellsDelegate?){
+    init(area : CGRect, rows : Int, cols : Int,maxCellSize : CGSize, delegate : CellsDelegate?){
         self.area = area
         self.rows = rows
         self.cols = cols
+        self.maxWidth = maxCellSize.width
+        self.maxHeight = maxCellSize.height
+        
         self.cellWidth = self.area.width / CGFloat(self.cols)
         self.cellHeight = self.area.height / CGFloat(self.rows)
         
