@@ -99,6 +99,7 @@ extension GameScene : GameScene_UserInterface{
             return
         }
         
+        
         if self.selectedCells.count == 1{
             let radius : Int = 1
             _ = self.selectedAsset!.cell.relativity(cell: self.selectedCells.first!)
@@ -113,12 +114,17 @@ extension GameScene : GameScene_UserInterface{
         }
         
         if self.selectedCells.count == 0{
-            self.selectedAsset!.reverseDecision()
+            if self.selectedAsset!.isMoving(){
+                self.selectedAsset!.reverseDecision()
+            }
+            else{
+                self.selectedAsset!.isStationary = !self.selectedAsset!.isStationary
+            }
         }
         
-        if self.selectedAsset != nil{
-            self.selectedAsset!.isPaused = false
-        }
+
+        self.selectedAsset!.isPaused = false
+
         
         self.clearSelectedCells()
         self.selectedAsset = nil

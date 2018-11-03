@@ -13,10 +13,16 @@ enum CellState : UInt{
     case empty = 1
     case selected = 2
     case nextmove = 3
+    case hasStationary = 4
     
     
     func image() -> UIImage{
-        return #imageLiteral(resourceName: "WhiteCellDotted")
+        switch self {
+        case .hasStationary:
+            return #imageLiteral(resourceName: "WhiteCellBordered")
+        default:
+            return #imageLiteral(resourceName: "WhiteCellDotted")
+        }
     }
     
 //    func color() -> UIColor{
@@ -187,15 +193,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     
     var contactingAssets : Set<Asset> = Set<Asset>()
     
-    var actionstate : CellState = CellState.empty{
-        didSet{
-            if self.actionstate != oldValue{
-                //let action = SKAction.colorize(with: self.actionstate.color(), colorBlendFactor: 1, duration: 0.25)
-                //self.run(action)
-                //self.color = self.actionstate.color()
-            }
-        }
-    }
+    var actionstate : CellState = CellState.empty
     
     var currentTick : Int = 0
     private var countdownstart : Int = 0
@@ -204,7 +202,7 @@ class Cell : SKSpriteNode, LivingAssetDelegate{
     init(id : Int, size : CGSize, row : Int, col : Int){
         self.id = id
         self.pos = CellPos(row: row, col: col)
-        super.init(texture: SKTexture(image: self.actionstate.image()), color: UIColor.clear, size: size)
+        super.init(texture: SKTexture(image: CellState.empty.image()), color: UIColor.clear, size: size)
         
         self.addLabel()
         self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)

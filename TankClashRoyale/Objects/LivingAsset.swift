@@ -26,6 +26,16 @@ class LivingAsset : Asset, StateDelegate{
     
     var initialized : Bool = false
     var previousDecisions : Decision?
+    var isStationary : Bool = false{
+        didSet{
+            if isStationary {
+                self.cell.texture = SKTexture(image: CellState.hasStationary.image())
+            }
+            else{
+                self.cell.texture = SKTexture(image: CellState.empty.image())
+            }
+        }
+    }
     
     var state : Double{
         set {

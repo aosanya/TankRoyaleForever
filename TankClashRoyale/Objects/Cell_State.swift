@@ -230,6 +230,8 @@ extension Cell : Cell_State{
     }
     
     func setColor(){
+        
+        
         guard self.asset == nil else {
             if (self.asset as! Asset).isMine {
                 self.color = UIColor.white
@@ -243,6 +245,7 @@ extension Cell : Cell_State{
             }
         }
         
+        self.texture = SKTexture(image: CellState.empty.image())
         guard self.prevAsset == nil else {
             if (self.prevAsset as! Asset).isMine {
                 self.color = UIColor.white

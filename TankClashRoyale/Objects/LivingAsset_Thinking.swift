@@ -44,13 +44,14 @@ extension LivingAsset : LivingAsset_Thinking{
             self.isMakingDecision = false
             return
         }        
-        
- 
-        
+                
         self.previousDecisions = nil
-        if let decision = self.brain.getDecision(testStates: self.relativeState){
-            if decision.preferredState != 0 {
-                performDecision(decision: decision)
+        
+        if self.isStationary == false{
+            if let decision = self.brain.getDecision(testStates: self.relativeState){
+                if decision.preferredState != 0 {
+                    performDecision(decision: decision)
+                }
             }
         }
         
