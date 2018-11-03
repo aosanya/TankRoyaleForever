@@ -8,15 +8,23 @@
 
 import SpriteKit
 
+protocol TankSelectorDelegate {
+    func selectedTankReady(selector : TankSelector)
+}
+
 class TankSelector : SKNode{
+    var isMine : Bool
     var tanks : [Button] = [Button]()
     var types : [AssetType]
+    var delegate : TankSelectorDelegate!
     var selected : String = ""
     var selectedType : AssetType!
     var canSelect : Bool = true
+    var readyAssets : [AssetType] = [AssetType]()    
     
-    init(assetTypes : [AssetType]) {
+    init(assetTypes : [AssetType], isMine : Bool) {
         self.types = assetTypes
+        self.isMine = isMine
         super.init()
         self.addTanks()
         self.selectDefault()
@@ -33,6 +41,7 @@ class TankSelector : SKNode{
             tank.data = types[i] as AnyObject
             tank.setBackground2(image: #imageLiteral(resourceName: "Tile_1"), size: CGSize(width: 120, height: 120))
             tank.position = CGPoint(x: tank.calculateAccumulatedFrame().size.width * startPoint * 1.5 , y: 0)
+            self.startTimerShadow(selector: tank, type: types[i])
             self.tanks.append(tank)
             startPoint += 1
             self.addChild(tank)
@@ -41,6 +50,12 @@ class TankSelector : SKNode{
     
     func deInitialize(){
         self.tanks.removeAll()
+    }
+    
+    func startCreatingTanks(){
+        for each in self.tanks{
+            each.isPaused = false
+        }
     }
     
     private func selectDefault(){
@@ -84,4 +99,45 @@ class TankSelector : SKNode{
         let rand = randint(0, upperLimit: self.tanks.count)
         self.switchTanks(thisButton: self.tanks[rand])
     }
+    
+    private func startTimerShadow(selector : Button, type : AssetType)  {
+       func addAsset(){
+            self.readyAssets.append(type)
+            if self.selectedType == type{
+                self.delegate.selectedTankReady(selector: self)
+            }
+        }
+
+        let duration = type.creationTime()
+        var timerShadow : SKSpriteNode
+        
+        let timerAtlas = SKTextureAtlas(named: "Timer")
+        var timerFrames = [SKTexture]()
+        
+        
+        for i in 0...72 {
+            let timerTextureName = "timerShade\(i * 5)"
+            timerFrames.append(timerAtlas.textureNamed(timerTextureName))
+        }
+        
+        timerShadow = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "timerShade10")), color: UIColor.clear, size: selector.calculateAccumulatedFrame().size.factor(1.15))
+        
+        let timerAction = SKAction.animate(with: timerFrames, timePerFrame: duration / Double(timerFrames.count))
+
+        let removeAction = SKAction.run({() in timerShadow.removeFromParent()})
+        timerShadow.alpha = 0.5
+        timerShadow.color = UIColor.lightGray
+        timerShadow.colorBlendFactor = 0.5
+        
+        timerShadow.zPosition = 3000
+        timerShadow.position = CGPoint(x: 0, y: selector.calculateAccumulatedFrame().size.height * 0.05)
+        selector.addChild(timerShadow)
+        
+        
+        timerShadow.run(SKAction.sequence([timerAction, removeAction]), withKey : "creating")
+        let completeAction = SKAction.run({() in addAsset()})
+        selector.run(SKAction.sequence([SKAction.wait(forDuration: duration), completeAction]), withKey : "creating")
+        selector.isPaused = true
+    }
+    
 }

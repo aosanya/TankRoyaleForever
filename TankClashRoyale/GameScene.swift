@@ -17,7 +17,9 @@ protocol GameSceneDelegate {
     func gameRestart()
 }
 
-class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelegate, GameOverDelegate, LivingAssetDelegate {
+class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelegate, GameOverDelegate, LivingAssetDelegate, TankSelectorDelegate {
+   
+    
 
     
     var assets : Assets!
@@ -77,8 +79,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
     }
     
     func startGame(){
-        self.triggerCreatingAssets(isMine: true)
-        self.triggerCreatingAssets(isMine: false)
+        self.greenSelector!.startCreatingTanks()
+        self.redSelector!.startCreatingTanks()
         self.startResourceGeneration(interval: 5)
     }
 
@@ -170,8 +172,8 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         let greenAssets =  [AssetType.tank1, AssetType.tank2 , AssetType.tank3]
         let redAssets =  [AssetType.tank1, AssetType.tank2, AssetType.tank3]
         
-        greenSelector = TankSelector(assetTypes : greenAssets)        
-        redSelector = TankSelector(assetTypes : redAssets)
+        greenSelector = TankSelector(assetTypes : greenAssets, isMine : true)
+        redSelector = TankSelector(assetTypes : redAssets, isMine : false)
         
         let cellsPos = self.cellsNode.calculateAccumulatedFrame()
         //let greenSize = greenSelector.calculateAccumulatedFrame()
@@ -179,15 +181,18 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         let level = UserInfo.getLevel()
         let greenGap = CGFloat(convertRange(1, fromMax: 10, toMin: Float(150), toMax: Float(120), convertVal: Float(level)))
         greenSelector.position = CGPoint(x: 0, y: cellsPos.minY - greenGap)
+        greenSelector.delegate = self
         self.addChild(greenSelector)
         
         let redGap = CGFloat(convertRange(1, fromMax: 5, toMin: Float(120), toMax: Float(100), convertVal: Float(level)))
         redSelector.position = CGPoint(x: 0, y: cellsPos.maxY + redGap)
         redSelector.zRotation = angleToRadians(angle: 180)
         redSelector.canSelect = false
+        redSelector.delegate = self
         self.addChild(redSelector)
     }
     
+
     
     func strengthChange(thisAsset: Asset) {
        //self.updateScores(isMine: thisAsset.isMine)
@@ -258,87 +263,9 @@ class GameScene: SKScene , CellsDelegate, AssetsDelegate, SKPhysicsContactDelega
         self.removeAction(forKey: "createResources")
     }
     
-    func triggerCreatingAssets(isMine : Bool){
-        guard self.gameOver == false else {
-            return
-        }
-        
-        guard cells.canCreateAsset(isMine:  isMine) == true else {
-            return
-        }
-        
-        var actionName : String = ""
-        var homeCells : [Cell] = [Cell]()
-        if isMine == true{
-            actionName = "createGreenAssets"
-            homeCells = cells.set.filter({m in m.isGreenHomeCell == true && m.canCreateAsset()})
-        }
-        else{
-            homeCells = cells.set.filter({m in m.isRedHomeCell == true && m.canCreateAsset()})
-            actionName = "createRedAssets"
-        }
-        
-        self.removeAction(forKey: actionName)
-        
-        var randomCell : Cell? = nil
-        
-        if homeCells.count > 0{
-            let randCellPos = randint(0, upperLimit: homeCells.count - 1)
-            randomCell = homeCells[randCellPos]
-        }
-
-        
-        var assetCreationInterval : Double = 0
-        if isMine == true{
-            assetCreationInterval = self.greenSelector.selectedType!.creationTime()
-        }
-        else if isMine == false{
-            assetCreationInterval = self.redSelector.selectedType!.creationTime()
-        }
-        
-        guard randomCell != nil else {
-            let loopAction = SKAction.run({() in self.triggerCreatingAssets(isMine: isMine)})
-            let sequence = SKAction.sequence([SKAction.wait(forDuration: assetCreationInterval), loopAction])
-            self.run(SKAction.repeatForever(sequence), withKey : actionName)
-            return
-        }
-        
-        
-        if isMine == true{
-           randomCell!.createAsset(isMine: isMine, type: greenSelector.selectedType)
-        }
-        else if isMine == false{
-            randomCell!.createAsset(isMine: isMine, type: redSelector.selectedType)
-        }
-    }
-    
-    func assetCreationComplete(cell: Cell, isMine: Bool) {
-        self.triggerCreatingAssets(isMine: isMine)
-    }
     
     
-    func canCreateAsset(isMine: Bool) {
-        self.triggerCreatingAssets(isMine: isMine)
-    }
-    
-    func createAsset(cell: Cell, isMine: Bool, type: AssetType) {
-        guard  gameOver == false else {
-            return
-        }
-        //       if let upgradeCandidate = cell.contactingAssets.filter({m in m.isMine == isMine}).first{
-        //            if upgradeCandidate.isMine == isMine {
-        //                upgradeCandidate.strength += newAssetStrength
-        //            }
-        //            else{
-        //                upgradeCandidate.strength -= newAssetStrength
-        //            }
-        //            return
-        //        }
-        if isMine == false{
-            self.redSelector.selectRandom()
-        }
-        self.assets.createAssets(cell: cell.id, isMine: isMine, type: type)
-    }
+ 
     
 //    func loadSeats(){
 //        func loadSet(cells : [Cell]){

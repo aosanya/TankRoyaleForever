@@ -121,10 +121,8 @@ extension GameScene : GameScene_UserInterface{
                 self.selectedAsset!.isStationary = !self.selectedAsset!.isStationary
             }
         }
-        
 
         self.selectedAsset!.isPaused = false
-
         
         self.clearSelectedCells()
         self.selectedAsset = nil
